@@ -1,0 +1,245 @@
+# ---------------------------------------------------------------------------------------------------
+# Copyright (c) 2026 by Julian Schneider
+# Authors: Julian Schneider
+# ---------------------------------------------------------------------------------------------------
+# Register map of the OpenWire MIB: the single description from which tools/regmap.py generates the
+# VHDL package hdl/owr_pkg/src/owr_regs_pkg.vhd, the documentation hdl/owr_mib/docs/register_map.md and
+# the C header sw/owr_regs.h.
+#
+# Byte addresses of 32-bit registers on the AXI4-Lite port (8-bit address). Access per field:
+#   RO   read only
+#   RW   read and write
+#   W1   write one: command, reads as zero
+#   W1C  sticky flag, write one to clear
+#   WO   write only, reads as zero
+#   RC   read only, any write to the register clears it (counters)
+# A reset value written as text depends on generics; status fields have none.
+
+id: 0x4F575201
+
+registers:
+  - name: ID
+    offset: 0x00
+    description: Identification of the core and version of the register map
+    fields:
+      - {name: ID, bits: "31:0", access: RO, reset: 0x4F575201, description: "0x4F5752 (OWR) and register map version 1"}
+
+  - name: GENERICS
+    offset: 0x04
+    description: Generics of the core
+    fields:
+      - {name: TIME_CODES, bits: "0", access: RO, reset: TimeCodes_g, description: Time-code service implemented}
+      - {name: INTERRUPTS, bits: "1", access: RO, reset: Interrupts_g, description: Distributed interrupt service implemented}
+      - {name: INT_TIMER_WIDTH, bits: "12:8", access: RO, reset: IntTimerWidth_g, description: Width of the interrupt timers in ticks}
+
+  - name: FIFO_DEPTHS
+    offset: 0x08
+    description: Depths of the transmit and receive FIFOs in N-Chars
+    fields:
+      - {name: TX, bits: "15:0", access: RO, reset: TxFifoDepth_g, description: Transmit FIFO depth}
+      - {name: RX, bits: "31:16", access: RO, reset: RxFifoDepth_g, description: Receive FIFO depth}
+
+  - name: CLK_FREQ
+    offset: 0x0C
+    description: Frequency of LinkClk
+    fields:
+      - {name: KHZ, bits: "31:0", access: RO, reset: LinkClkFreq_g, description: Frequency of LinkClk in kHz}
+
+  - name: PORT_CTRL
+    offset: 0x10
+    description: "Port control: Data Link layer (ECSS 5.5.3a), Physical layer (ECSS 5.3.8) and port loopback (ECSS 5.6.10f)"
+    fields:
+      - {name: PORT_RESET, bits: "0", access: W1, reset: 0, description: "PortReset: clears both FIFOs, moves the link state machine to ErrorReset, sets the time-code register to zero and clears the interrupt registers"}
+      - {name: LINK_DISABLED, bits: "1", access: RW, reset: LinkDisabled_g, description: LinkDisabled}
+      - {name: LINK_START, bits: "2", access: RW, reset: LinkStart_g, description: LinkStart}
+      - {name: AUTO_START, bits: "3", access: RW, reset: AutoStart_g, description: AutoStart}
+      - {name: DRIVER_EN, bits: "4", access: RW, reset: 1, description: Enable line driver}
+      - {name: RECEIVER_EN, bits: "5", access: RW, reset: 1, description: Enable line receiver}
+      - {name: LOOPBACK, bits: "6", access: RW, reset: 0, description: "Port loopback: the receiver receives the own transmitter"}
+
+  - name: LINK_SPEED
+    offset: 0x14
+    description: "Data signalling rate of the transmitter (ECSS 5.4.11): bit period in LinkClk cycles"
+    fields:
+      - {name: RUN_DIV, bits: "7:0", access: RW, reset: RunDiv_g, description: "Bit period in the Run state (1 to 255, 0 is treated as 1)"}
+      - {name: INIT_DIV, bits: "15:8", access: RO, reset: InitDiv, description: "Bit period outside Run (10 Mb/s)"}
+
+  - name: PORT_STATUS
+    offset: 0x18
+    description: "Port status (ECSS 5.5.3b)"
+    fields:
+      - {name: LINK_STATE, bits: "2:0", access: RO, description: "Link state: 0 ErrorReset, 1 ErrorWait, 2 Ready, 3 Started, 4 Connecting, 5 Run"}
+      - {name: RECOVERY, bits: "3", access: RO, description: Link error recovery state machine in Recovery}
+      - {name: GOT_NULL, bits: "4", access: RO, description: gotNull}
+      - {name: SPILL, bits: "5", access: RO, description: Remainder of a packet being discarded from the transmit FIFO}
+      - {name: LAST_CAUSE, bits: "10:8", access: RO, description: "Cause of the last error recovery (ECSS 5.5.8.4a.5): 0 none, 1 LinkDisabled, 2 disconnect, 3 parity error, 4 ESC error, 5 credit error"}
+
+  - name: CREDIT
+    offset: 0x1C
+    description: "Credit counters (ECSS 5.5.3b.3)"
+    fields:
+      - {name: TX_CREDIT, bits: "5:0", access: RO, description: Transmit credit count}
+      - {name: RX_CREDIT, bits: "13:8", access: RO, description: Receive credit count}
+
+  - name: FIFO_LEVELS
+    offset: 0x20
+    description: Fill levels of the FIFOs seen from LinkClk
+    fields:
+      - {name: TX, bits: "15:0", access: RO, description: Transmit FIFO level}
+      - {name: RX, bits: "31:16", access: RO, description: Receive FIFO level}
+
+  - name: ERRORS
+    offset: 0x24
+    description: "Error flags (ECSS 5.5.3b.2)"
+    fields:
+      - {name: DISCONNECT, bits: "0", access: W1C, reset: 0, description: Disconnect}
+      - {name: PARITY, bits: "1", access: W1C, reset: 0, description: Parity error}
+      - {name: ESC, bits: "2", access: W1C, reset: 0, description: ESC error}
+      - {name: CREDIT, bits: "3", access: W1C, reset: 0, description: Credit error}
+
+  - name: ERROR_COUNTS
+    offset: 0x28
+    description: Error counters (saturating)
+    fields:
+      - {name: DISCONNECT, bits: "7:0", access: RC, reset: 0, description: Disconnects}
+      - {name: PARITY, bits: "15:8", access: RC, reset: 0, description: Parity errors}
+      - {name: ESC, bits: "23:16", access: RC, reset: 0, description: ESC errors}
+      - {name: CREDIT, bits: "31:24", access: RC, reset: 0, description: Credit errors}
+
+  - name: LINK_COUNTS
+    offset: 0x2C
+    description: Link counters (saturating)
+    fields:
+      - {name: RUN, bits: "15:0", access: RC, reset: 0, description: Entries into the Run state}
+      - {name: RECOVERY, bits: "31:16", access: RC, reset: 0, description: Link error recoveries}
+
+  - name: EVENTS
+    offset: 0x30
+    description: Event flags
+    fields:
+      - {name: LINK_UP, bits: "0", access: W1C, reset: 0, description: Run state entered}
+      - {name: LINK_DOWN, bits: "1", access: W1C, reset: 0, description: Run state left}
+      - {name: TC_VALID, bits: "2", access: W1C, reset: 0, description: Valid time-code received}
+      - {name: TC_INVALID, bits: "3", access: W1C, reset: 0, description: Invalid time-code received}
+      - {name: INT_RECEIVED, bits: "4", access: W1C, reset: 0, description: Interrupt code received}
+      - {name: ACK_RECEIVED, bits: "5", access: W1C, reset: 0, description: Interrupt acknowledgement code received}
+      - {name: BC_DISCARDED, bits: "6", access: W1C, reset: 0, description: "Broadcast code discarded by the Data Link layer outside Run (ECSS 5.5.9)"}
+      - {name: BC_IGNORED, bits: "7", access: W1C, reset: 0, description: "Received broadcast code ignored: type 0b01 or 0b11 (ECSS 5.6.3f), disabled service, or acknowledgement in interrupt mode"}
+      - {name: INT_REQ_DISCARDED, bits: "8", access: W1C, reset: 0, description: Interrupt request within the minimum interval or while waiting}
+      - {name: ACK_REQ_DISCARDED, bits: "9", access: W1C, reset: 0, description: Acknowledgement request in interrupt mode (no code sent)}
+      - {name: IND_OVERFLOW, bits: "10", access: W1C, reset: 0, description: Indication lost (indication FIFO full)}
+      - {name: RX_OVERFLOW, bits: "11", access: W1C, reset: 0, description: N-Char lost in the receive handler}
+      - {name: ECC_SEC, bits: "12", access: W1C, reset: 0, description: Single error corrected in a FIFO}
+      - {name: ECC_DED, bits: "13", access: W1C, reset: 0, description: Double error detected in a FIFO}
+
+  - name: ERRORS_IRQ_EN
+    offset: 0x34
+    description: Interrupt enable of the error flags
+    fields:
+      - {name: ENABLE, bits: "3:0", access: RW, reset: 0, description: "Bit n enables ERRORS bit n"}
+
+  - name: EVENTS_IRQ_EN
+    offset: 0x38
+    description: Interrupt enable of the event flags
+    fields:
+      - {name: ENABLE, bits: "13:0", access: RW, reset: 0, description: "Bit n enables EVENTS bit n"}
+
+  - name: IRQ_STATUS
+    offset: 0x3C
+    description: Interrupt output
+    fields:
+      - {name: IRQ, bits: "0", access: RO, description: "Irq: OR of the enabled error and event flags"}
+
+  - name: TIME_CODE
+    offset: 0x40
+    description: "Time-code register (ECSS 5.6.4.3)"
+    fields:
+      - {name: VALUE, bits: "5:0", access: RO, description: Last time-code sent or received}
+
+  - name: TC_SEND
+    offset: 0x44
+    description: "TIME-CODE.request (ECSS 6.1.2.2)"
+    fields:
+      - {name: VALUE, bits: "5:0", access: WO, reset: 0, description: A write sends a time-code with this value}
+
+  - name: TC_COUNTS
+    offset: 0x48
+    description: Time-code counters (saturating)
+    fields:
+      - {name: VALID, bits: "15:0", access: RC, reset: 0, description: Valid time-codes received}
+      - {name: INVALID, bits: "31:16", access: RC, reset: 0, description: Invalid time-codes received}
+
+  - name: INT_CTRL
+    offset: 0x50
+    description: "Distributed interrupt mode (ECSS 5.6.5.1d)"
+    fields:
+      - {name: ACK_MODE, bits: "0", access: RW, reset: 0, description: "1: interrupt with acknowledgement mode, 0: interrupt mode"}
+
+  - name: INT_TICK
+    offset: 0x54
+    description: Tick of the interrupt timers
+    fields:
+      - {name: CYCLES, bits: "15:0", access: RW, reset: IntTick, description: "Tick period in LinkClk cycles (reset: 1 us; 0 is treated as 1)"}
+
+  - name: INT_HOLDOFF
+    offset: 0x58
+    description: "Minimum interval between two interrupt codes of one identifier (ECSS 5.6.5.4c, d)"
+    fields:
+      - {name: TICKS, bits: "IntTimerWidth-1:0", access: RW, reset: 0, description: "Interval in ticks; 0: none"}
+
+  - name: INT_ACK_DELAY
+    offset: 0x5C
+    description: "Minimum delay between a received interrupt code and its acknowledgement code (ECSS 5.6.5.6e)"
+    fields:
+      - {name: TICKS, bits: "IntTimerWidth-1:0", access: RW, reset: 0, description: "Delay in ticks; 0: none"}
+
+  - name: INT_ACTIVE
+    offset: 0x60
+    description: "Interrupt register: interrupts received and not acknowledged"
+    fields:
+      - {name: IID, bits: "31:0", access: RO, description: Bit n is set by a received interrupt code n and cleared by an acknowledgement request n}
+
+  - name: INT_SEND
+    offset: 0x64
+    description: "DISTRIBUTED_INTERRUPT.request (ECSS 6.1.3.2)"
+    fields:
+      - {name: IID, bits: "4:0", access: WO, reset: 0, description: A write sends an interrupt code with this identifier}
+
+  - name: INT_ACK
+    offset: 0x68
+    description: "DISTRIBUTED_INTERRUPT_ACK.request (ECSS 6.1.3.4)"
+    fields:
+      - {name: IID, bits: "4:0", access: WO, reset: 0, description: A write acknowledges the interrupt with this identifier}
+
+  - name: ACK_RECEIVED
+    offset: 0x6C
+    description: Interrupt acknowledgement codes received
+    fields:
+      - {name: IID, bits: "31:0", access: W1C, reset: 0, description: Bit n is set by a received acknowledgement code n}
+
+  - name: ECC_STATUS
+    offset: 0x80
+    description: EDAC status of the FIFOs
+    fields:
+      - {name: DED, bits: "5:0", access: RC, reset: 0, description: "Bit n: double error detected in channel n (0 transmit FIFO, 1 receive FIFO, 2 broadcast requests, 3 broadcast indications, 4 register requests, 5 register responses); any write clears all counters and flags"}
+
+  - name: ECC_SELECT
+    offset: 0x84
+    description: Channel shown in ECC_COUNT
+    fields:
+      - {name: CHANNEL, bits: "2:0", access: RW, reset: 0, description: Channel 0 to 5}
+
+  - name: ECC_COUNT
+    offset: 0x88
+    description: SEC and DED counters of the selected channel
+    fields:
+      - {name: SEC, bits: "15:0", access: RC, reset: 0, description: "Single errors corrected; any write clears the selected channel"}
+      - {name: DED, bits: "31:16", access: RC, reset: 0, description: Double errors detected}
+
+  - name: ECC_INJECT
+    offset: 0x8C
+    description: Error injection into the next word written to a FIFO (tests)
+    fields:
+      - {name: CHANNEL, bits: "2:0", access: WO, reset: 0, description: Channel 0 to 5}
+      - {name: SINGLE, bits: "8", access: W1, reset: 0, description: Inject a single error}
+      - {name: DOUBLE, bits: "9", access: W1, reset: 0, description: Inject a double error}
