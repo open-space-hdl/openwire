@@ -20,7 +20,8 @@ document. This page lists the rules and the few OpenWire-specific additions.
   of one-cycle events where the receiver is never slower than the source.
 - Standard functions (FIFOs, RAMs, crossings, synchronisers, arbiters, pipeline stages) are instantiated from Open
   Logic, never rewritten. FIFOs and crossings use the fault-tolerant `olo_ft_*` entities.
-- State machines have a `when others` branch that returns to a defined recovery state (safe encoding).
+- State machines have a `when others` branch that returns to a defined recovery state; the reset leads to that state
+  from any state.
 - Every line that implements an ECSS requirement is traceable through the module specification; comments name the
   clause where it helps the reader (for example `-- ECSS 5.5.7.6b`).
 - File header: copyright line and authors, then a 1 to 2 sentence description that links to the module
@@ -63,7 +64,10 @@ its own unit testbench. `hdl/<module>/README.md` links the four documents and ex
 - A test passes only when UVVM reports no unexpected alerts and every expected alert occurred
   (`owr_tb_pkg.owrTestEnd`).
 - Tests observe ports and management interfaces only, never internal signals.
-- GHDL is the default simulator; QuestaSim (`python run.py --questa`) is used for code coverage.
+- GHDL is the default simulator; QuestaSim (`python run.py --questa`) is used for code coverage
+  ([coverage.md](coverage.md)). Every test passes in both simulators.
+- A side effect is never obtained by calling an impure function and discarding its result: QuestaSim may remove such
+  a call. Protected types offer a procedure for it (for example `txDrop` of the far-end model).
 - The far end of a link is the behavioural Data-Strobe model of `tb/` (character encoder and decoder in continuous
   time) or a second port; tests never rely on the receiver of the port under test to check its own transmitter.
 - Negative tests inject the fault from the bench (parity error, ESC error, disconnect, credit violation, double error

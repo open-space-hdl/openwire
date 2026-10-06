@@ -7,7 +7,7 @@
 -- Description
 ---------------------------------------------------------------------------------------------------
 -- Data-Strobe model of a SpaceWire far end. The transmitter sends the characters queued in
--- owr_tb_ds_pkg.FarEnd_v (instance Index_g) with the configured bit period, Nulls or no transition
+-- owr_tb_farend_pkg.FarEnd_v (instance Index_g) with the configured bit period, Nulls or no transition
 -- when the queue is empty, and injects simultaneous transitions. The receiver decodes the data and
 -- strobe signals of the port in continuous time and logs every character and every edge.
 --
@@ -30,6 +30,7 @@ library ieee;
 
 library work;
     use work.owr_tb_ds_pkg.all;
+    use work.owr_tb_farend_pkg.all;
 
 ---------------------------------------------------------------------------------------------------
 -- Entity

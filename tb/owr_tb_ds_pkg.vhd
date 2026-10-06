@@ -7,8 +7,9 @@
 -- Description
 ---------------------------------------------------------------------------------------------------
 -- Character-level model of a SpaceWire far end (ECSS-E-ST-50-12C Rev.1 clauses 5.4.3 and 5.4.4):
--- character encoding with odd parity, the control object of the Data-Strobe model owr_tb_ds_bfm
--- (transmit queue, bit period, modes, fault injection) and the log of the characters it decodes.
+-- character encoding with odd parity and the protected type of the control object of the Data-Strobe
+-- model owr_tb_ds_bfm (transmit queue, bit period, modes, fault injection, log of the decoded
+-- characters). The object itself is in owr_tb_farend_pkg.
 -- The encoder and decoder are independent of the RTL and work in continuous time.
 --
 -- Documentation: docs/conventions.md (section Verification)
@@ -100,6 +101,10 @@ package owr_tb_ds_pkg is
         impure function txPop (idx : natural) return TbChar_t;
         impure function txPeek (idx : natural) return TbChar_t;
 
+        -- Removes the head of the queue (a procedure: an optimising simulator may skip a function call whose
+        -- result is not used)
+        procedure txDrop (idx : natural);
+
         procedure txClear (idx : natural);
 
         procedure setBitPeriod (
@@ -174,17 +179,6 @@ package owr_tb_ds_pkg is
             n   : natural) return TbEdge_t;
 
     end protected;
-
-    shared variable FarEnd_v : TbFarEnd_t;
-
-    -- Waits until the transmit queue of the model is empty and the last character has been sent
-    procedure tbWaitTxEmpty (idx : natural);
-
-    -- Number of received characters of one kind in the log, starting at entry first
-    impure function tbRxCountKind (
-        idx   : natural;
-        kind  : TbCharKind_t;
-        first : natural := 0) return natural;
 
 end package;
 
@@ -446,6 +440,14 @@ package body owr_tb_ds_pkg is
             return TxQ_v(idx)(TxHead_v(idx));
         end function;
 
+        procedure txDrop (idx : natural) is
+        begin
+            if TxCnt_v(idx) > 0 then
+                TxHead_v(idx) := (TxHead_v(idx) + 1) mod QueueSize_c;
+                TxCnt_v(idx)  := TxCnt_v(idx) - 1;
+            end if;
+        end procedure;
+
         procedure txClear (idx : natural) is
         begin
             TxCnt_v(idx) := 0;
@@ -614,32 +616,5 @@ package body owr_tb_ds_pkg is
         end function;
 
     end protected body;
-
-    procedure tbWaitTxEmpty (idx : natural) is
-    begin
-
-        while FarEnd_v.txCount(idx) > 0 loop
-            wait for 10 ns;
-        end loop;
-
-        -- Longest character: 14 bits
-        wait for 14 * FarEnd_v.getBitPeriod(idx);
-    end procedure;
-
-    impure function tbRxCountKind (
-        idx   : natural;
-        kind  : TbCharKind_t;
-        first : natural := 0) return natural is
-        variable Cnt_v : natural := 0;
-    begin
-
-        for i in first to FarEnd_v.rxCount(idx) - 1 loop
-            if FarEnd_v.rxGet(idx, i).Kind = kind then
-                Cnt_v := Cnt_v + 1;
-            end if;
-        end loop;
-
-        return Cnt_v;
-    end function;
 
 end package body;

@@ -2,11 +2,13 @@
 
 ## 1. Test results
 
-Run on 2026-10-06 with GHDL 6.0.0 (mcode), VUnit 5.0.0.dev7, UVVM 2026.03.20: `python run.py "*owr_pkg*"`.
+Run on 2026-10-06 with GHDL 6.0.0 (mcode), VUnit 5.0.0.dev7, UVVM 2026.03.20:
+`python run.py "*owr_pkg*" "*owr_cc_pulse*"`.
 
 | Testbench | Tests | Passed |
 | --- | --- | --- |
 | `owr_pkg_tb` | 3 | 3 |
+| `owr_cc_pulse_tb` | 12 (4 tests in 3 configurations) | 12 |
 
 ## 2. Summary
 

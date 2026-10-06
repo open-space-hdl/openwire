@@ -2,11 +2,11 @@
 
 ## 1. Test results
 
-Run on 2026-10-07 with GHDL 6.0.0 (mcode), VUnit 5.0.0.dev7, UVVM 2026.03.20: `python run.py "*owr_mib*"`.
+Run on 2026-10-06 with GHDL 6.0.0 (mcode), VUnit 5.0.0.dev7, UVVM 2026.03.20: `python run.py "*owr_mib*"`.
 
 | Testbench | Tests | Passed |
 | --- | --- | --- |
-| `owr_mib_tb` | 10 (8 tests, TC-MG-09 in two configurations) | 10 |
+| `owr_mib_tb` | 11 (8 tests, TC-MG-09 in three configurations) | 11 |
 
 ## 2. Summary
 

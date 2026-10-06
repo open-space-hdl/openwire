@@ -133,7 +133,7 @@ package owr_ni_tb_pkg is
         LastAckIid => (others => '0')
     );
 
-    -- Logs in owr_tb_ds_pkg.FarEnd_v: codes passed to the Data Link layer and indications (kind and value) of
+    -- Logs in owr_tb_farend_pkg.FarEnd_v: codes passed to the Data Link layer and indications (kind and value) of
     -- instance 1 (all services) and instance 2 (no services)
     constant LogTx1_c  : natural := 0;
     constant LogInd1_c : natural := 1;

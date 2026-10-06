@@ -8,7 +8,7 @@
 ---------------------------------------------------------------------------------------------------
 -- Test harness of the Encoding layer: owr_enc at 100 MHz with the Data-Strobe far-end model
 -- (instance 0). The characters of the transmitter come from the transmit queue of instance 1 of
--- owr_tb_ds_pkg.FarEnd_v (a Null when it is empty), the received characters are logged in the receive
+-- owr_tb_farend_pkg.FarEnd_v (a Null when it is empty), the received characters are logged in the receive
 -- log of instance 1.
 --
 -- Documentation: hdl/owr_enc/docs/verification_plan.md
@@ -23,6 +23,7 @@ library ieee;
 library work;
     use work.owr_pkg.all;
     use work.owr_tb_ds_pkg.all;
+    use work.owr_tb_farend_pkg.all;
 
 ---------------------------------------------------------------------------------------------------
 -- Entity
@@ -162,15 +163,12 @@ begin
 
     -- Character source of the transmitter: head of queue 1, popped when the transmitter takes it
     p_src : process (Clk_i) is
-        variable Char_v   : TbChar_t;
         variable AckCnt_v : natural := 0;
     begin
         if rising_edge(Clk_i) then
             if TxAck = '1' then
                 AckCnt_v := AckCnt_v + 1;
-                if FarEnd_v.txCount(1) > 0 then
-                    Char_v := FarEnd_v.txPop(1);
-                end if;
+                FarEnd_v.txDrop(1);
             end if;
             TxAckCnt <= AckCnt_v;
         end if;

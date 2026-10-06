@@ -69,6 +69,12 @@ Requests are AXI4-Stream transfers. The indication ports have a ready input (def
 discarded and EVENTS.IND_OVERFLOW set when the indication FIFO (16 entries) is full. The same requests are available
 through the MIB (TC_SEND, INT_SEND, INT_ACK).
 
+The distributed interrupt service needs the timing of the network (ECSS 5.6.5.4c, d and 5.6.5.6e): INT_HOLDOFF is
+the minimum interval between two interrupt codes of one identifier (longer than the propagation of an interrupt code
+across the network, plus the acknowledgement time in interrupt with acknowledgement mode), INT_ACK_DELAY the minimum
+delay before an acknowledgement code (longer than the propagation of the interrupt code). Both count ticks of
+INT_TICK cycles (1 us after reset) and are zero after reset; set them for the network before using interrupts.
+
 ### 4.3 MIB (`MgmtClk`)
 
 AXI4-Lite with 8-bit byte addresses and 32-bit data. Registers are written as 32-bit words. AXI4-Lite does not order
@@ -92,7 +98,25 @@ depends on it. `Irq` is the OR of the error and event flags enabled in ERRORS_IR
 The minimum tolerated separation between edges at the receiver (MinsepIN, ECSS 5.3.7.2j) is one `LinkClk` period plus
 the setup and hold window of the input flip-flops.
 
-## 5. Programming sequence
+## 5. Fault tolerance
+
+| Item | Protection | MIB |
+| --- | --- | --- |
+| FIFOs: transmit, receive, broadcast requests, broadcast indications, register requests, register responses (EDAC channels 0 to 5) | SECDED ECC on the buffer RAM: a single error is corrected, a double error is detected and contained | EVENTS.ECC_SEC, EVENTS.ECC_DED, ECC_STATUS, ECC_COUNT |
+| Clock domain crossings | TMR synchronisers of the Open Logic `olo_ft_*` entities | none |
+| State machines | Recovery state reached through the `when others` branch and the reset; the link state machine and the link error recovery also through the port reset | none |
+
+A double error is never passed on as valid data: an N-Char read from the transmit FIFO is sent as an EEP and the rest
+of the packet is discarded; an N-Char read from the receive FIFO is delivered as an EEP and the rest of the packet is
+discarded; a broadcast request or indication is discarded; a register request or response is dropped, and the
+read then ends with SLVERR after the read timeout of the AXI4-Lite slave.
+
+The `when others` branches of the state machines are kept by synthesis only when the tool implements the state
+machines safe (for example the attribute or option for safe state machines of the synthesis tool); without it, an
+upset of a state register is cleared by the reset or, for the link, by PORT_CTRL.PORT_RESET. ECC_INJECT writes a
+single or a double error into the next word of a FIFO for tests of the software.
+
+## 6. Programming sequence
 
 After reset the port is in ErrorReset or Ready according to the generics. A typical start by software:
 
@@ -107,7 +131,7 @@ A link error (disconnect, parity, ESC or credit error) restarts the link automat
 and the counters record it; the packet being received ends with an EEP, the rest of the packet being sent is
 discarded. PORT_CTRL.PORT_RESET clears both FIFOs and restarts the link; PORT_CTRL.LINK_DISABLED stops it.
 
-## 6. Performance
+## 7. Performance
 
 | Item | Value (simulation) |
 | --- | --- |
@@ -115,10 +139,11 @@ discarded. PORT_CTRL.PORT_RESET clears both FIFOs and restarts the link; PORT_CT
 | Credit | Seven FCTs (56 N-Chars) with a receive FIFO of 64 |
 | Latency of a received character | Two bits after its last bit (parity check of the next character) plus the FIFO crossing |
 
-## 7. Verification and checks
+## 8. Verification and checks
 
 ```shell
 python run.py -p 8                  # regression with GHDL
+python run.py --questa --coverage -p 1  # regression with QuestaSim and code coverage (coverage.md)
 python lint/lint.py                 # VSG
 python run.py --compile
 python lint/synth_check.py          # GHDL synthesis of owr_core

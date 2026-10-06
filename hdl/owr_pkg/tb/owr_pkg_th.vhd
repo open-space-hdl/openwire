@@ -22,6 +22,7 @@ library uvvm_util;
 
 library work;
     use work.owr_tb_ds_pkg.all;
+    use work.owr_tb_farend_pkg.all;
 
 ---------------------------------------------------------------------------------------------------
 -- Entity

@@ -13,7 +13,8 @@ every FIFO and clock domain crossing uses the fault-tolerant entities of
 
 ## Status
 
-The core is complete and verified in simulation (GHDL, 70 test cases at unit, layer and core level); the
+The core is complete and verified in simulation (GHDL and QuestaSim, 84 test cases at unit, layer and core level,
+statement, branch and state machine coverage closed, see [docs/coverage.md](docs/coverage.md)); the
 [compliance matrix](docs/compliance.md) traces every ECSS clause in scope to its requirements and test cases. Two cores
 exchange packets at 97 % of the data character rate in both directions, recover from line cuts and receive errors,
 and interoperate with an independent Data-Strobe model of the far end. Synthesis results on a target device and a
@@ -28,6 +29,7 @@ hardware test are open; see [docs/roadmap.md](docs/roadmap.md).
 | [docs/conventions.md](docs/conventions.md) | Coding, verification and repository conventions |
 | [docs/roadmap.md](docs/roadmap.md) | Development plan and module status |
 | [docs/compliance.md](docs/compliance.md) | ECSS compliance matrix: requirements and test cases of every clause (generated) |
+| [docs/coverage.md](docs/coverage.md) | Code coverage of the regression with QuestaSim |
 | [hdl/owr_mib/docs/register_map.md](hdl/owr_mib/docs/register_map.md) | Register map of the MIB (generated; C header `sw/owr_regs.h`) |
 | `hdl/<module>/docs/` | Specification, architecture, verification plan and verification report of each module |
 
@@ -58,6 +60,7 @@ python -m pip install -r requirements.txt
 python run.py -p 8              # full regression with GHDL, 8 parallel simulations
 python run.py "*owr_enc*"       # one module
 python run.py --questa <test>   # QuestaSim
+python run.py --questa --coverage -p 1  # code coverage, see docs/coverage.md
 ```
 
 `run.py` compiles Open Logic into the VHDL library `olo`, the required UVVM components into their own libraries and

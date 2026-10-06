@@ -374,6 +374,8 @@ begin
                 regWrite(RegEccInject_c, x"00000201");
                 regWrite(RegEccInject_c, x"00000102");
                 regWrite(RegEccInject_c, x"00000203");
+                -- Neither SINGLE nor DOUBLE: no injection
+                regWrite(RegEccInject_c, x"00000000");
                 wait for 500 ns;
                 check_value(MibOut.CntInjTx, 1, error, "injection into the transmit FIFO (UserClk)");
                 check_value(MibOut.BitsInjTx, 1, error, "single error");
@@ -421,16 +423,17 @@ begin
 
                 await_completion(AXILITE_VVCT, Axi_c, 1 ms);
 
-                -- Back-to-back writes of commands are all executed
-                for i in 0 to 19 loop
+                -- Back-to-back writes of commands are all executed (with the fastest management clock they fill the
+                -- request FIFO and the bridge holds the write channels)
+                for i in 0 to 59 loop
                     axilite_write(AXILITE_VVCT, Axi_c, to_unsigned(RegTcSend_c, 8),
                                   std_logic_vector(to_unsigned(i, 32)), "time-code request");
                 end loop;
 
                 await_completion(AXILITE_VVCT, Axi_c, 1 ms);
                 wait for 1 us;
-                check_value(MibOut.CntTc, 20, error, "every command executed");
-                check_value(MibOut.LastTc, "010011", error, "last time-code value");
+                check_value(MibOut.CntTc, 60, error, "every command executed");
+                check_value(MibOut.LastTc, "111011", error, "last time-code value");
             end if;
 
         end loop;
