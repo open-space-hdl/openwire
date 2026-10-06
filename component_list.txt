@@ -4,3 +4,4 @@ hdl/owr_enc
 hdl/owr_dl
 hdl/owr_ni
 hdl/owr_mib
+hdl/owr_core

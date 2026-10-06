@@ -13,15 +13,22 @@ every FIFO and clock domain crossing uses the fault-tolerant entities of
 
 ## Status
 
-See [docs/roadmap.md](docs/roadmap.md) for the state of every module.
+The core is complete and verified in simulation (GHDL, 70 test cases at unit, layer and core level); the
+[compliance matrix](docs/compliance.md) traces every ECSS clause in scope to its requirements and test cases. Two cores
+exchange packets at 97 % of the data character rate in both directions, recover from line cuts and receive errors,
+and interoperate with an independent Data-Strobe model of the far end. Synthesis results on a target device and a
+hardware test are open; see [docs/roadmap.md](docs/roadmap.md).
 
 ## Documentation
 
 | Document | Content |
 | --- | --- |
 | [docs/architecture.md](docs/architecture.md) | Architecture: layers, building blocks, owned ECSS clauses, Open Logic usage, verification |
+| [docs/user_guide.md](docs/user_guide.md) | Integration: sources, generics, clocks, interfaces, line drivers and receivers, programming sequence |
 | [docs/conventions.md](docs/conventions.md) | Coding, verification and repository conventions |
 | [docs/roadmap.md](docs/roadmap.md) | Development plan and module status |
+| [docs/compliance.md](docs/compliance.md) | ECSS compliance matrix: requirements and test cases of every clause (generated) |
+| [hdl/owr_mib/docs/register_map.md](hdl/owr_mib/docs/register_map.md) | Register map of the MIB (generated; C header `sw/owr_regs.h`) |
 | `hdl/<module>/docs/` | Specification, architecture, verification plan and verification report of each module |
 
 ## Repository structure
@@ -31,7 +38,9 @@ openwire/
 |-- docs/             Top-level documentation
 |-- hdl/<module>/     One folder per module: src/, tb/, docs/
 |-- tb/               Verification components shared by the testbenches (Data-Strobe far-end model)
-|-- lint/             VSG configuration (Open Logic rules)
+|-- lint/             VSG configuration (Open Logic rules), synthesizability check
+|-- tools/            Compliance matrix and register map generators, synthesis script for AMD Vivado
+|-- sw/               C header of the register map (generated)
 |-- open-logic/       Git submodule: Open Logic (fault-tolerant entities branch)
 |-- uvvm/             Git submodule: UVVM verification framework
 |-- component_list.txt  Modules in dependency order
@@ -59,6 +68,9 @@ Checks besides the regression:
 
 ```shell
 python lint/lint.py                 # VSG, no errors and no warnings
+python lint/synth_check.py          # GHDL synthesis of owr_core (after python run.py --compile)
+python tools/compliance.py --check  # every ECSS clause and requirement traced to a test case
+python tools/regmap.py --check      # generated register map files match hdl/owr_mib/regs/owr_regs.yml
 ```
 
 ## Licence

@@ -24,9 +24,9 @@ All blocks except the user sides of the FIFOs run in `LinkClk`.
 
 | ID | Requirement | ECSS |
 | --- | --- | --- |
-| DL-IF-01 | The Data Link layer shall accept N-Chars (9 bit: end of packet marker flag and 8 bit data, EOP 0x00, EEP 0x01) from the user with a valid / ready handshake into the transmit FIFO and pass received N-Chars from the receive FIFO with a valid / ready handshake, both in `UserClk`. | 5.5.2a, d, e, f, 5.2.8b, c, 6.2.1 |
+| DL-IF-01 | The Data Link layer shall accept N-Chars (9 bit: end of packet marker flag and 8 bit data, EOP 0x00, EEP 0x01) from the user with a valid / ready handshake into the transmit FIFO and pass received N-Chars from the receive FIFO with a valid / ready handshake, both in `UserClk`. | 5.2.3a, b, c, 5.5.2a, d, e, f, 5.2.8b, c, 6.2.1 |
 | DL-IF-02 | The Data Link layer shall accept broadcast codes from the Network layer with a valid / ready handshake and pass received broadcast codes as one-cycle events. | 5.5.2a, d, g, 6.2.2 |
-| DL-IF-03 | The Data Link layer shall present one character or control code to the Encoding layer at all times and take the acknowledge of the Encoding layer, and take the received characters and control codes, gotNull and the error events of the Encoding layer. | 5.5.2b, c, i |
+| DL-IF-03 | The Data Link layer shall present one character or control code to the Encoding layer at all times and take the acknowledge of the Encoding layer, and take the received characters and control codes, gotNull and the error events of the Encoding layer. | 5.2.3d, 5.5.2b, c, i |
 | DL-IF-04 | The Data Link layer shall control the Encoding layer with Transmit Enable, Receive Enable and the run rate select. | 5.5.2h, 5.4.2e |
 | DL-IF-05 | The Data Link layer shall be controlled by the management parameters PortReset, LinkDisabled, LinkStart and AutoStart. | 5.5.3a |
 | DL-IF-06 | The Data Link layer shall provide the link state, the error events (disconnect, parity, ESC, credit), the transmit and receive credit counters, the recovery state with the cause of the last error and the fill levels of both FIFOs. | 5.5.3b, 5.5.8.4a.5 |
