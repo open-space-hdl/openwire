@@ -197,9 +197,11 @@ begin
                     v.Fsm := ErrorReset_s;
                 end if;
 
-            -- Recovery state of the safe encoding
+            -- Recovery state for an illegal state
+            -- coverage off
             when others =>
                 v.Fsm := ErrorReset_s;
+            -- coverage on
 
         end case;
 

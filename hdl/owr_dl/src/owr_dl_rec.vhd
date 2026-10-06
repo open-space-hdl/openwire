@@ -102,8 +102,11 @@ begin
                     v.Fsm := Normal_s;
                 end if;
 
+            -- Recovery state for an illegal state
+            -- coverage off
             when others =>
                 v.Fsm := Normal_s;
+            -- coverage on
 
         end case;
 

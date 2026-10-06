@@ -61,7 +61,7 @@ package owr_core_tb_pkg is
     constant AxiB_c   : natural := 1;
 
     -- Far-end model instance (on the line of core A in LinkMode '1') and logs of the indications of A and B
-    -- (owr_tb_ds_pkg.FarEnd_v; data = kind (7:6: 00 time-code, 01 interrupt, 10 acknowledgement) and value)
+    -- (owr_tb_farend_pkg.FarEnd_v; data = kind (7:6: 00 time-code, 01 interrupt, 10 acknowledgement) and value)
     constant Far_c  : natural := 0;
     constant IndA_c : natural := 2;
     constant IndB_c : natural := 3;

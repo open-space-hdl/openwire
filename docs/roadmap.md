@@ -21,4 +21,4 @@ every module; a module is done when its verification report is written and its r
 | --- | --- |
 | Synthesis on a target device: resources and timing closure of `LinkClk` | Open; `tools/synth_vivado.py` runs the out-of-context flow with AMD Vivado |
 | Hardware test against SpaceWire equipment (LVDS I/O buffers of the target, cable) | Open |
-| Code coverage with QuestaSim | Open |
+| Code coverage with QuestaSim | Done: [coverage.md](coverage.md) |

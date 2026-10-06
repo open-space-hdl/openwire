@@ -11,7 +11,7 @@ management clock faster and slower than the link clock.
 
 | Testbench | Harness | DUT and environment |
 | --- | --- | --- |
-| `owr_mib_tb` | `owr_mib_th` | `owr_mib` (LinkClk 100 MHz, FIFO depths 64 and 128, LinkStart_g, RunDiv_g = 4), UserClk 83.3 MHz, MgmtClk 166.7 MHz (configurations `mgmt_fast`, `mgmt_slow` with 25 MHz for TC-MG-09), AXI4-Lite VVC, observers |
+| `owr_mib_tb` | `owr_mib_th` | `owr_mib` (LinkClk 100 MHz, FIFO depths 64 and 128, LinkStart_g, RunDiv_g = 4), UserClk 83.3 MHz, MgmtClk 166.7 MHz (configurations `mgmt_fast`, `mgmt_slow` with 25 MHz and `mgmt_very_fast` with 500 MHz for TC-MG-09), AXI4-Lite VVC, observers |
 
 Simulator: GHDL.
 
@@ -26,8 +26,8 @@ Simulator: GHDL.
 | `test_flags` (TC-MG-05) | Every event input sets its flag; link up and down from the link state; acknowledgements per identifier; write one clears only the written bits | MG-RF-07 |
 | `test_counters` (TC-MG-06) | Error counters (disconnect saturates at 255), time-code counters, Run entries and recoveries; cleared by a write | MG-RF-07 |
 | `test_irq` (TC-MG-07) | Interrupt output follows enabled flags only | MG-RF-08, MG-IF-03 |
-| `test_ecc` (TC-MG-08) | ECC events of all four layer FIFOs counted per channel, DED flags, event flags, read and clear, global clear; injection commands arrive in the clock domain of each write side with one or two flipped bits; single error in the register request and response FIFOs corrected; double error: write dropped, read ends with SLVERR (expected alert) | MG-ED-01, MG-ED-02, MG-BR-02 |
-| `test_read_after_write` (TC-MG-09) | Configurations `mgmt_fast` and `mgmt_slow`: 50 writes each followed by a read of the value; 20 back-to-back command writes all executed | MG-BR-01 |
+| `test_ecc` (TC-MG-08) | ECC events of all four layer FIFOs counted per channel, DED flags, event flags, read and clear, global clear; injection commands arrive in the clock domain of each write side with one or two flipped bits, a command without SINGLE and DOUBLE injects nothing; single error in the register request and response FIFOs corrected; double error: write dropped, read ends with SLVERR (expected alert) | MG-ED-01, MG-ED-02, MG-BR-02 |
+| `test_read_after_write` (TC-MG-09) | Configurations `mgmt_fast`, `mgmt_slow` and `mgmt_very_fast`: 50 writes each followed by a read of the value; 60 back-to-back command writes all executed, with 500 MHz they fill the request FIFO and the bridge holds the write channels | MG-BR-01 |
 
 ## 4. Requirement coverage
 

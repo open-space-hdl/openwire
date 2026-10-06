@@ -2,7 +2,7 @@
 
 ## 1. Test results
 
-Run on 2026-10-07 with GHDL 6.0.0 (mcode), VUnit 5.0.0.dev7, UVVM 2026.03.20: `python run.py "*owr_core*"`.
+Run on 2026-10-06 with GHDL 6.0.0 (mcode), VUnit 5.0.0.dev7, UVVM 2026.03.20: `python run.py "*owr_core*"`.
 
 | Testbench | Tests | Passed |
 | --- | --- | --- |

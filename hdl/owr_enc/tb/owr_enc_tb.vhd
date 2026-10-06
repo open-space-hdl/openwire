@@ -27,6 +27,7 @@ library work;
     use work.owr_pkg.all;
     use work.owr_tb_pkg.all;
     use work.owr_tb_ds_pkg.all;
+    use work.owr_tb_farend_pkg.all;
 
 ---------------------------------------------------------------------------------------------------
 -- Entity
@@ -119,6 +120,7 @@ begin
         variable Ok_v    : boolean;
         variable Both_v  : boolean;
         variable Errs_v  : natural;
+        variable Ds_v    : std_logic_vector(1 downto 0);
 
         -- Compares n entries of the log of instance idx from entry first with the sequence seed
         procedure checkSeq (
@@ -374,6 +376,84 @@ begin
                 end loop;
 
                 check_value(Both_v, error, "a stop with data and strobe at '1' occurred");
+
+                -- Transmit Enable low for one cycle in the middle of a bit with data and strobe at "01", "10" and
+                -- "11": the reset is completed, the first Null starts one bit period (plus one cycle) after the last
+                -- reset edge
+                for c in 1 to 3 loop
+                    FarEnd_v.rxClear(Far_c);
+                    Ds_v     := std_logic_vector(to_unsigned(c, 2));
+                    TxEnable <= '1';
+                    wait for 3 us;
+
+                    loop
+                        wait on Spw_DOut, Spw_SOut;
+                        exit when Spw_DOut = Ds_v(1) and Spw_SOut = Ds_v(0);
+                    end loop;
+
+                    wait for 1 ns;
+                    TxEnable <= '0';
+                    wait until rising_edge(Clk);
+                    TxEnable <= '1';
+                    Start_v  := FarEnd_v.edgeCount(Far_c);
+                    wait for 3 us;
+                    Ok_v     := false;
+
+                    for i in Start_v to FarEnd_v.edgeCount(Far_c) - 2 loop
+                        Edge_v := FarEnd_v.edgeGet(Far_c, i);
+                        if Edge_v.D = '0' and Edge_v.S = '0' then
+                            Ok_v   := true;
+                            Prev_v := FarEnd_v.edgeGet(Far_c, i + 1);
+                            check_value(Prev_v.D = '0' and Prev_v.S = '1', error,
+                                        "first Null after the restart starts on the strobe line, case " &
+                                        to_string(Ds_v));
+                            check_value(Prev_v.T - Edge_v.T >= 100 ns and Prev_v.T - Edge_v.T <= 110 ns, error,
+                                        "one bit period and at most one cycle between reset and restart, case " &
+                                        to_string(Ds_v) & ": " & to_string(Prev_v.T - Edge_v.T));
+                            exit;
+                        end if;
+                    end loop;
+
+                    check_value(Ok_v, error, "data and strobe reset before the restart, case " & to_string(Ds_v));
+                    check_value(FarEnd_v.edgeCount(Far_c) - Start_v > 20, error,
+                                "transmission after the restart, case " & to_string(Ds_v));
+
+                    for i in Start_v + 1 to FarEnd_v.edgeCount(Far_c) - 1 loop
+                        if FarEnd_v.edgeGet(Far_c, i).D /= FarEnd_v.edgeGet(Far_c, i - 1).D and
+                           FarEnd_v.edgeGet(Far_c, i).S /= FarEnd_v.edgeGet(Far_c, i - 1).S then
+                            alert(ERROR, "simultaneous transition of data and strobe at the restart");
+                        end if;
+                    end loop;
+
+                    TxEnable <= '0';
+                    wait for 1 us;
+                end loop;
+
+                -- Reset while data and strobe are '1': strobe first, data one cycle later
+                FarEnd_v.rxClear(Far_c);
+                pushSeq(Port_c, 200, 50);
+                TxEnable <= '1';
+                wait for 3 us;
+
+                loop
+                    wait until rising_edge(Clk);
+                    exit when Spw_DOut = '1' and Spw_SOut = '1';
+                end loop;
+
+                Start_v := FarEnd_v.edgeCount(Far_c);
+                Rst     <= '1';
+                wait for 100 ns;
+                check_value(FarEnd_v.edgeCount(Far_c) - Start_v, 2, error, "two edges at reset");
+                if FarEnd_v.edgeCount(Far_c) - Start_v = 2 then
+                    Edge_v := FarEnd_v.edgeGet(Far_c, Start_v);
+                    check_value(Edge_v.D = '1' and Edge_v.S = '0', error, "strobe reset first at reset");
+                    check_value(FarEnd_v.edgeGet(Far_c, Start_v + 1).T - Edge_v.T, 10 ns, error,
+                                "data reset one cycle later");
+                end if;
+                Rst      <= '0';
+                TxEnable <= '0';
+                FarEnd_v.txClear(Port_c);
+                wait for 3 us;
                 -- Restart: first edge on the strobe line, first character a Null
                 FarEnd_v.rxClear(Far_c);
                 TxEnable <= '1';

@@ -129,25 +129,26 @@ begin
         variable Kind_v   : Pending_t;
         variable Typ_v    : CtrlType_t;
 
-        -- Releases the pending character after its parity has been checked
+        -- Releases the pending character after its parity has been checked (reads the copy of the registers in v,
+        -- which this cycle has not changed before the call)
         procedure releasePending is
         begin
-            if r.Pending = Esc_s then
-                if r.EscSeen = '1' then
+            if v.Pending = Esc_s then
+                if v.EscSeen = '1' then
                     -- ECSS 5.4.9: ESC followed by ESC
                     v.EscErr := '1';
                     v.Halted := '1';
                 else
                     v.EscSeen := '1';
                 end if;
-            elsif r.Pending /= None_s then
+            elsif v.Pending /= None_s then
                 v.OutValid := '1';
-                v.OutData  := r.PendData;
-                if r.EscSeen = '1' then
+                v.OutData  := v.PendData;
+                if v.EscSeen = '1' then
                     v.EscSeen := '0';
-                    if r.Pending = Fct_s then
+                    if v.Pending = Fct_s then
                         v.OutKind := KindNull_c;
-                    elsif r.Pending = Data_s then
+                    elsif v.Pending = Data_s then
                         v.OutKind := KindBc_c;
                     else
                         -- ECSS 5.4.9: ESC followed by EOP or EEP
@@ -157,7 +158,7 @@ begin
                     end if;
                 else
 
-                    case r.Pending is
+                    case v.Pending is
 
                         when Fct_s =>
                             v.OutKind := KindFct_c;
@@ -280,8 +281,11 @@ begin
                                 v.BitCnt := r.BitCnt + 1;
                             end if;
 
+                        -- Recovery state for an illegal state
+                        -- coverage off
                         when others =>
                             v.Phase := Parity_s;
+                        -- coverage on
 
                     end case;
 

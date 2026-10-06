@@ -138,17 +138,8 @@ begin
             Div_v := InitDiv_g;
         end if;
 
-        if TxEnable = '1' then
-            if r.Active = '0' then
-                -- Start after the reset of data and strobe: the first character is taken at once
-                if r.D = '0' and r.S = '0' then
-                    v.Active := '1';
-                    v.First  := '1';
-                    v.Acc    := '0';
-                    v.Remain := 0;
-                    v.DivCnt := 0;
-                end if;
-            elsif r.DivCnt = 0 then
+        if TxEnable = '1' and r.Active = '1' then
+            if r.DivCnt = 0 then
                 -- Bit boundary
                 v.DivCnt := Div_v - 1;
                 if r.Remain = 0 then
@@ -178,8 +169,17 @@ begin
             else
                 v.DivCnt := r.DivCnt - 1;
             end if;
+        elsif TxEnable = '1' and r.D = '0' and r.S = '0' and r.DivCnt = 0 then
+            -- Start at a bit boundary after the reset of data and strobe: the first character is taken at once
+            v.Active := '1';
+            v.First  := '1';
+            v.Acc    := '0';
+            v.Remain := 0;
+            v.DivCnt := 0;
         else
-            -- Controlled reset (ECSS 5.4.4c to e): strobe first, data one bit period later
+            -- Controlled reset (ECSS 5.4.4c to e): strobe first, data one bit period later. Transmit Enable
+            -- asserted again before the end of the reset waits for it, and the first transition comes at least one
+            -- bit period after the last reset transition
             v.Active := '0';
             v.Remain := 0;
             if r.DivCnt = 0 then
@@ -205,8 +205,14 @@ begin
         if rising_edge(Clk) then
             r <= r_next;
             if Rst = '1' then
-                r.D      <= '0';
-                r.S      <= '0';
+                -- Controlled reset (ECSS 5.4.4c): with data and strobe at '1', strobe is reset first and data one
+                -- cycle later (the reset lasts several cycles); otherwise both at once
+                if r.D = '1' and r.S = '1' then
+                    r.S <= '0';
+                else
+                    r.D <= '0';
+                    r.S <= '0';
+                end if;
                 r.Active <= '0';
                 r.First  <= '0';
                 r.Remain <= 0;

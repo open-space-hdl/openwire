@@ -41,7 +41,7 @@ the standard" of the module specifications.
 | 5.5.6 | Sending priority | DL-5 | DL-FC-02, DL-TX-01, DL-TX-03 | TC-DL-01, TC-DL-11, TC-DL-20, TC-DL-21, TC-DL-40 | Verified |
 | 5.5.7.1 to 5.5.7.7 | Link initialisation behaviour | DL-3 | DL-FI-02, DL-LS-01, DL-LS-02, DL-LS-03, DL-LS-04, DL-LS-05, DL-LS-06, DL-LS-07, DL-LS-08, DL-RX-01, DL-TX-01, DL-TX-02, DL-TX-03, NI-IN-08 | TC-DL-01, TC-DL-02, TC-DL-03, TC-DL-04, TC-DL-05, TC-DL-06, TC-DL-11, TC-DL-20, TC-DL-21, TC-DL-40, TC-NI-10 | Verified |
 | 5.5.7.8 | Alternative behaviour when disabled asserted | Not implemented (permission) | - | - | Not implemented (permission) |
-| 5.5.8 | Link error recovery | DL-7 | DL-IF-06, DL-RC-01, DL-RC-02, DL-RX-02, DL-TX-04, MG-RF-01 | TC-DL-01, TC-DL-03, TC-DL-05, TC-DL-06, TC-DL-12, TC-DL-30, TC-DL-31, TC-DL-42, TC-MG-01, TC-MG-02, TC-MG-03, TC-MG-04 | Verified |
+| 5.5.8 | Link error recovery | DL-7 | DL-IF-06, DL-RC-01, DL-RC-02, DL-RX-02, DL-TX-04, MG-RF-01 | TC-DL-01, TC-DL-03, TC-DL-05, TC-DL-06, TC-DL-12, TC-DL-30, TC-DL-31, TC-DL-32, TC-DL-42, TC-MG-01, TC-MG-02, TC-MG-03, TC-MG-04 | Verified |
 | 5.5.9 | Accepting broadcast codes for sending | DL-5 | DL-TX-03 | TC-DL-20, TC-DL-21 | Verified |
 | 5.6.2 | SpaceWire packets | NI-1 | CORE-NI-01 | TC-CORE-02, TC-CORE-05, TC-CORE-13 | Verified |
 | 5.6.3 | Broadcast codes | NI-4 | NI-BC-01, NI-BC-02 | TC-NI-04, TC-NI-05 | Verified |

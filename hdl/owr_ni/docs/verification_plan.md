@@ -27,7 +27,7 @@ Simulator: GHDL.
 | `test_int_send` (TC-NI-06) | Interrupt code sent; request within the minimum interval and request of a waiting identifier discarded; several waiting codes highest identifier first; a code discarded outside Run does not start the interval | NI-IN-03 |
 | `test_int_receive` (TC-NI-07) | Received interrupt codes set the interrupt register and are indicated | NI-IN-04 |
 | `test_int_modes` (TC-NI-08) | Interrupt with acknowledgement mode: acknowledgement request clears the register, the code is held for the minimum delay; acknowledgement without a received interrupt sent at once; received acknowledgement indicated. Interrupt mode: no acknowledgement code, request and received acknowledgement discarded | NI-IN-02, NI-IN-05, NI-IN-06 |
-| `test_int_timers` (TC-NI-09) | Minimum interval of 5 ticks of 10 cycles measured between two interrupt codes | NI-IN-07 |
+| `test_int_timers` (TC-NI-09) | Minimum interval of 5 ticks of 10 cycles and of 5 ticks of one cycle (tick setting 0) measured between two interrupt codes; minimum acknowledgement delay of 100 ticks for each of the 32 identifiers, acknowledgements requested before the delay ends | NI-IN-07 |
 | `test_int_port_reset` (TC-NI-10) | Port reset clears the interrupt register, the waiting codes and the timers | NI-IN-08 |
 | `test_disabled_services` (TC-NI-11) | Instance 2: received codes ignored, requests discarded | NI-TC-01, NI-IN-01 |
 | `test_ind_overflow` (TC-NI-12) | Indication FIFO full: indications lost and reported, the stored ones delivered in order | NI-IF-02 |

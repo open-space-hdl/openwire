@@ -31,6 +31,7 @@ Simulator: GHDL. The run divider of the ports is 1 (100 Mb/s) unless stated.
 | `test_bc_service` (TC-DL-21) | Broadcast code outside Run discarded and reported; four codes in Run sent; received time-code and interrupt code passed in Run; a code waiting in the slot is discarded in ErrorReset | DL-TX-03, DL-RX-01, DL-IF-02 |
 | `test_rec_tx_discard` (TC-DL-30) | Disconnect after 8 of 100 data characters: the rest of the packet is discarded from the transmit FIFO, the next packet is sent complete after the restart; cause disconnect | DL-TX-04, DL-RC-01 |
 | `test_rec_rx_eep` (TC-DL-31) | Parity error after data characters: the data confirmed by a parity check followed by an EEP; ESC error after a complete packet: no EEP; causes | DL-RX-02, DL-RC-01 |
+| `test_rec_restart` (TC-DL-32) | Disconnect in the middle of a packet whose source pauses; the link returns to Run while the remainder is discarded; a parity error in Run restarts the recovery with the new cause; the recovery ends when the remainder up to the EOP is discarded, nothing of it is sent, the next packet is sent complete | DL-RC-01, DL-TX-04 |
 | `test_link_traffic` (TC-DL-40) | Ports A and B: 60 packets of 0 to 300 bytes in each direction with EOP and EEP; 20 packets of 1000 bytes at 100 Mb/s at 95 % or more of 8 Mb/s user data per 10 Mb/s | DL-IF-01, DL-FI-01, DL-TX-01, DL-RX-01 |
 | `test_link_backpressure` (TC-DL-41) | Random gaps on the transmit side and random back-pressure on the receive side, 50 packets | DL-IF-01, DL-FC-04 |
 | `test_link_restart` (TC-DL-42) | Line cut for 3 us in the middle of a packet: both ports restart, the packet arrives as a prefix with EEP, the following packets are complete | DL-TX-04, DL-RX-02, DL-RC-01 |
@@ -57,11 +58,11 @@ Simulator: GHDL. The run divider of the ports is 1 (100 Mb/s) unless stated.
 | DL-TX-01 | TC-DL-01, TC-DL-11, TC-DL-20 |
 | DL-TX-02 | TC-DL-01 |
 | DL-TX-03 | TC-DL-20, TC-DL-21 |
-| DL-TX-04 | TC-DL-30, TC-DL-42 |
+| DL-TX-04 | TC-DL-30, TC-DL-32, TC-DL-42 |
 | DL-TX-05 | TC-DL-50 |
 | DL-RX-01 | TC-DL-05, TC-DL-21, TC-DL-40 |
 | DL-RX-02 | TC-DL-12, TC-DL-31, TC-DL-42 |
-| DL-RC-01 | TC-DL-03, TC-DL-05, TC-DL-12, TC-DL-30, TC-DL-31 |
+| DL-RC-01 | TC-DL-03, TC-DL-05, TC-DL-12, TC-DL-30, TC-DL-31, TC-DL-32 |
 | DL-RC-02 | TC-DL-06 |
 
 ## 5. Negative tests

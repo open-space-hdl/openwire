@@ -6,11 +6,11 @@ Run on 2026-10-06 with GHDL 6.0.0 (mcode), VUnit 5.0.0.dev7, UVVM 2026.03.20: `p
 
 | Testbench | Tests | Passed |
 | --- | --- | --- |
-| `owr_dl_tb` | 18 | 18 |
+| `owr_dl_tb` | 19 | 19 |
 
 ## 2. Summary
 
-All 18 test cases pass; every requirement of the specification is covered (see the verification plan). VSG reports
+All 19 test cases pass; every requirement of the specification is covered (see the verification plan). VSG reports
 no errors and no warnings.
 
 Measured values:

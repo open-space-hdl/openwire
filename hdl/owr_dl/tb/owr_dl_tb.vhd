@@ -35,6 +35,7 @@ library work;
     use work.owr_pkg.all;
     use work.owr_tb_pkg.all;
     use work.owr_tb_ds_pkg.all;
+    use work.owr_tb_farend_pkg.all;
     use work.owr_dl_tb_pkg.all;
 
 ---------------------------------------------------------------------------------------------------
@@ -708,6 +709,54 @@ begin
                 check_value(StatA.Cause, CauseEsc_c, error, "cause ESC");
                 axistream_expect(AXISTREAM_VVCT, VvcARx_c, owrCountPacket(5, 70), "complete packet");
                 await_completion(AXISTREAM_VVCT, VvcARx_c, 50 us, "packet read");
+
+            elsif run("test_rec_restart") then
+                -- TC-DL-32
+                bringUp(1);
+                -- Packet with a pause after 20 data characters; eight are sent with the credit of one FCT
+                shared_axistream_vvc_config(VvcATx_c).bfm_config.valid_low_at_word_num := 20;
+                shared_axistream_vvc_config(VvcATx_c).bfm_config.valid_low_duration    := 10000;
+                axistream_transmit(AXISTREAM_VVCT, VvcATx_c, owrCountPacket(40), "packet with a pause");
+                wait for 20 us;
+                check_value(farNChars, 8, error, "eight data characters sent");
+                -- First error: disconnect in the middle of the packet
+                FarEnd_v.setMode(Far_c, TbModeSilent);
+                waitState(0, StateErrorReset_c, 5 us, "disconnect");
+                wait for 2 us;
+                check_value(StatA.Recovery, '1', error, "recovery waits for the end of the packet");
+                check_value(StatA.Cause, CauseDisconnect_c, error, "cause of the first error");
+                -- The link starts again while the remainder of the packet is still being discarded
+                FarEnd_v.setMode(Far_c, TbModeNull);
+                waitState(0, StateConnecting_c, 40 us, "first restart");
+                Start_v := FarEnd_v.rxCount(Far_c);
+                FarEnd_v.txPush(Far_c, tbChar(TbFct));
+                waitState(0, StateRun_c, 5 us, "Run during the recovery");
+                check_value(StatA.Recovery, '1', error, "recovery still active in Run");
+                -- Second error during the recovery: the recovery starts again with the new cause
+                FarEnd_v.txPush(Far_c, tbChar(TbData, x"AA", true));
+                waitState(0, StateErrorReset_c, 20 us, "parity error");
+                wait for 2 us;
+                check_value(StatA.Cause, CauseParity_c, error, "cause of the second error");
+                check_value(StatA.Recovery, '1', error, "recovery active after the second error");
+                -- Only L-Chars are sent in Run during the recovery; the reset of data and strobe after the parity
+                -- error can complete a control character at the far end, so the data characters are counted
+                check_value(tbRxCountKind(Far_c, TbData, Start_v), 0, error, "no data character of the remainder sent");
+                -- End of the pause: the remainder up to the EOP is discarded and the recovery ends
+                await_completion(AXISTREAM_VVCT, VvcATx_c, 200 us, "packet written");
+                wait for 2 us;
+                check_value(StatA.Recovery, '0', error, "recovery complete");
+                check_value(StatA.TxLevel, 0, error, "remainder discarded");
+                -- The next packet is sent complete after the restart
+                shared_axistream_vvc_config(VvcATx_c).bfm_config.valid_low_duration := 0;
+                axistream_transmit(AXISTREAM_VVCT, VvcATx_c, owrCountPacket(10, 200), "next packet");
+                waitState(0, StateConnecting_c, 40 us, "second restart");
+                Start_v                                                             := FarEnd_v.rxCount(Far_c);
+                FarEnd_v.txPush(Far_c, tbChar(TbFct));
+                FarEnd_v.txPush(Far_c, tbChar(TbFct));
+                waitState(0, StateRun_c, 5 us, "Run");
+                wait for 10 us;
+                check_value(farNChars(Start_v), 11, error, "N-Chars after the restart");
+                checkFarPacket(Start_v, 10, 200, TbEop, "next packet");
 
             elsif run("test_link_traffic") then
                 -- TC-DL-40

@@ -28,6 +28,7 @@ library work;
     use work.owr_pkg.all;
     use work.owr_tb_pkg.all;
     use work.owr_tb_ds_pkg.all;
+    use work.owr_tb_farend_pkg.all;
     use work.owr_ni_tb_pkg.all;
 
 ---------------------------------------------------------------------------------------------------
@@ -92,8 +93,10 @@ begin
     test_runner_watchdog(runner, 10 ms);
 
     p_main : process is
-        variable Cnt_v : natural;
-        variable T_v   : time;
+        variable Cnt_v   : natural;
+        variable T_v     : time;
+        variable RxT_v   : time_vector(0 to 31);
+        variable Found_v : boolean;
 
         -- Request on a user port of instance 1 (waits for the handshake)
         procedure userReq (
@@ -446,6 +449,58 @@ begin
                 T_v := FarEnd_v.rxGet(LogTx1_c, 1).T - FarEnd_v.rxGet(LogTx1_c, 0).T;
                 check_value(T_v >= 500 ns and T_v <= 700 ns, error, "minimum interval " & to_string(T_v) &
                             " between 5 and 6 ticks plus latency");
+                -- Tick every cycle (INT_TICK = 0): an interval of 5 cycles
+                wait for 1 us;
+                NiIn1.IntTick <= x"0000";
+                Cnt_v         := FarEnd_v.rxCount(LogTx1_c);
+                T_v           := now;
+
+                while FarEnd_v.rxCount(LogTx1_c) < Cnt_v + 2 and now < T_v + 1 us loop
+                    mibReq(KindInt_c, 3);
+                end loop;
+
+                check_value(FarEnd_v.rxCount(LogTx1_c), Cnt_v + 2, error, "two interrupt codes with a tick per cycle");
+                T_v := FarEnd_v.rxGet(LogTx1_c, Cnt_v + 1).T - FarEnd_v.rxGet(LogTx1_c, Cnt_v).T;
+                check_value(T_v >= 50 ns and T_v <= 120 ns, error, "minimum interval " & to_string(T_v) &
+                            " between 5 and 6 cycles plus latency");
+                -- Acknowledgement delay of every identifier: 100 ticks of 100 ns after its interrupt code
+                NiIn1.AckMode  <= '1';
+                NiIn1.IntTick  <= x"000A";
+                NiIn1.AckDelay <= x"0064";
+                Cnt_v          := FarEnd_v.rxCount(LogTx1_c);
+
+                for i in 0 to 31 loop
+                    rxCode(1, intCode(i));
+                    -- Clock edge at which the code was received
+                    RxT_v(i) := now - 200 ns;
+                end loop;
+
+                for i in 0 to 31 loop
+                    mibReq(KindAck_c, i);
+                end loop;
+
+                check_value(FarEnd_v.rxCount(LogTx1_c), Cnt_v, error, "acknowledgements held");
+                T_v := now;
+
+                while FarEnd_v.rxCount(LogTx1_c) < Cnt_v + 32 and now < T_v + 20 us loop
+                    wait until rising_edge(LinkClk);
+                end loop;
+
+                check_value(FarEnd_v.rxCount(LogTx1_c), Cnt_v + 32, error, "32 acknowledgement codes");
+
+                for i in 0 to 31 loop
+                    Found_v := false;
+
+                    for n in Cnt_v to FarEnd_v.rxCount(LogTx1_c) - 1 loop
+                        if FarEnd_v.rxGet(LogTx1_c, n).Data = ackCode(i) then
+                            Found_v := true;
+                            check_value(FarEnd_v.rxGet(LogTx1_c, n).T - RxT_v(i) >= 10 us, error,
+                                        "acknowledgement " & to_string(i) & " at least 100 ticks after the interrupt");
+                        end if;
+                    end loop;
+
+                    check_value(Found_v, error, "acknowledgement code " & to_string(i));
+                end loop;
 
             elsif run("test_int_port_reset") then
                 -- TC-NI-10

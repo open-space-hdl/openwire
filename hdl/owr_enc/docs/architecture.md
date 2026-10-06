@@ -38,13 +38,13 @@ current data value, so exactly one of the two signals changes per bit.
 
 | Condition | Behaviour |
 | --- | --- |
-| Reset | Data and strobe '0', inactive |
-| `TxEnable` = '1', inactive, data = strobe = '0' | Active; `Acc` = '0'; the next bit boundary is the current cycle |
+| Reset | Data and strobe '0', inactive; with both at '1' strobe is reset in the first and data in the second cycle of the reset |
+| `TxEnable` = '1', inactive, data = strobe = '0', bit boundary | Active; `Acc` = '0'; the first character is taken in the next cycle, at least one bit period after the last reset transition |
 | First character after activation | A Null is encoded regardless of the presented character (ECSS 5.4.5); the presented character is acknowledged only if it is a Null |
-| `TxEnable` = '0' | Inactive; at each bit boundary strobe is reset if it is '1', otherwise data if it is '1' (ECSS 5.4.4d); with the initial rate outside Run the delay between the two is 100 ns |
+| `TxEnable` = '0', or '1' while inactive with data or strobe at '1' | Inactive; at each bit boundary strobe is reset if it is '1', otherwise data if it is '1' (ECSS 5.4.4d); with the initial rate outside Run the delay between the two is 100 ns. A `TxEnable` that returns before the end of the reset waits for it |
 
 The link state machine enables the transmitter only from Started, after at least 6.4 us in ErrorReset, so data and
-strobe are '0' when it is enabled.
+strobe are '0' when it is enabled; the restart during the reset matters only for other users of the block.
 
 ## 3. Receiver (EN-2, `owr_enc_rx`)
 
