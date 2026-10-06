@@ -2,3 +2,4 @@
 hdl/owr_pkg
 hdl/owr_enc
 hdl/owr_dl
+hdl/owr_ni
