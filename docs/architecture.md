@@ -41,8 +41,9 @@ ECSS 5.3.6.1b); the I/O buffers are instantiated by the design that integrates t
 ### Project
 
 OpenWire is an open SpaceWire implementation that is based on the Open Logic VHDL Library. The code lives in
-[rustyqt/openwire](https://github.com/rustyqt/openwire) under the PSI HDL Library License, Version 1.0, the licence of
-Open Logic. Open Logic is pinned to `feature/fault-tolerant-all-entities` of rustyqt/open-logic (4990f33e).
+[open-space-hdl/openwire](https://github.com/open-space-hdl/openwire) under the PSI HDL Library License, Version 1.0,
+the licence of Open Logic. Open Logic is pinned to `feature/fault-tolerant-all-entities` of rustyqt/open-logic
+(4990f33e).
 
 ### References
 
