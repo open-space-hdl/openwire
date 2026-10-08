@@ -22,6 +22,9 @@ hardware test are open; see [docs/roadmap.md](docs/roadmap.md).
 
 ## Documentation
 
+The documents are also published as a website: [openspacehdl.org/openwire](https://openspacehdl.org/openwire/) (built
+from this repository by `tools/docs/`).
+
 | Document | Content |
 | --- | --- |
 | [docs/architecture.md](docs/architecture.md) | Architecture: layers, building blocks, owned ECSS clauses, Open Logic usage, verification |
@@ -42,6 +45,7 @@ openwire/
 |-- tb/               Verification components shared by the testbenches (Data-Strobe far-end model)
 |-- lint/             VSG configuration (Open Logic rules), synthesizability check
 |-- tools/            Compliance matrix and register map generators, synthesis script for AMD Vivado
+|   `-- docs/         Documentation website (MkDocs)
 |-- sw/               C header of the register map (generated)
 |-- open-logic/       Git submodule: Open Logic (fault-tolerant entities branch)
 |-- uvvm/             Git submodule: UVVM verification framework
@@ -74,6 +78,7 @@ python lint/lint.py                 # VSG, no errors and no warnings
 python lint/synth_check.py          # GHDL synthesis of owr_core (after python run.py --compile)
 python tools/compliance.py --check  # every ECSS clause and requirement traced to a test case
 python tools/regmap.py --check      # generated register map files match hdl/owr_mib/regs/owr_regs.yml
+python -m mkdocs build -f tools/docs/mkdocs.yml  # documentation website, fails on broken links
 ```
 
 ## Licence
