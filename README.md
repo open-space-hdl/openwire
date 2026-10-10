@@ -1,5 +1,7 @@
 # OpenWire
 
+[![TRL 3](docs/img/trl-3.svg)](https://openspacehdl.org/trl/)
+
 OpenWire is an open SpaceWire implementation that is based on the Open Logic VHDL Library.
 
 It implements a SpaceWire port with a node interface according to
@@ -12,6 +14,10 @@ every FIFO and clock domain crossing uses the fault-tolerant entities of
 [Open Logic](https://github.com/open-logic/open-logic) (SECDED ECC, TMR synchronisers).
 
 ## Status
+
+**Technology readiness level: TRL 3** (fully verified by simulation). The core has not been tested on
+hardware yet and has no flight heritage; see [what the levels mean](https://openspacehdl.org/trl/) and the next
+steps in the [roadmap](docs/roadmap.md#technology-readiness).
 
 The core is complete and verified in simulation (GHDL and QuestaSim, 84 test cases at unit, layer and core level,
 statement, branch and state machine coverage closed, see [docs/coverage.md](docs/coverage.md)); the
