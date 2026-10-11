@@ -3,9 +3,9 @@
 ## 1. Overview
 
 `owr_core` is the OpenWire core: a SpaceWire port with a node interface (ECSS-E-ST-50-12C Rev.1). It connects the
-Network layer (`owr_ni`), the Data Link layer (`owr_dl`), the Encoding layer (`owr_enc`) and the MIB (`owr_mib`),
-maps the packet ports onto the N-Chars of the Data Link layer (NI-1) and brings the reset into the three clock
-domains (MG-4). The line drivers and receivers (LVDS) are instantiated by the design that integrates the core.
+Network layer (`owr_network`), the Data Link layer (`owr_data_link`), the Encoding layer (`owr_encoding`) and the MIB
+(`owr_mib`), maps the packet ports onto the N-Chars of the Data Link layer (NI-1) and brings the reset into the three
+clock domains (MG-4). The line drivers and receivers (LVDS) are instantiated by the design that integrates the core.
 
 ## 2. Requirements
 

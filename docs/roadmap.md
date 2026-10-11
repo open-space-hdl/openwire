@@ -19,9 +19,9 @@ The core is at **TRL 3**: fully verified by simulation, not yet tested on hardwa
 | --- | --- | --- |
 | `owr_pkg` | Common constants and types, register package, `owr_cc_pulse` | Done |
 | `tb` (shared) | Verification helpers, Data-Strobe far-end model, AXI4-Stream and AXI4-Lite VVC wrappers | Done |
-| `owr_enc` | EN-1 transmitter, EN-2 receiver, EN-3 port loopback | Done |
-| `owr_dl` | DL-1 to DL-7 (Data Link layer) | Done |
-| `owr_ni` | NI-2 to NI-4 (Network layer of a node; NI-1 in `owr_core`) | Done |
+| `owr_encoding` | EN-1 transmitter, EN-2 receiver, EN-3 port loopback | Done |
+| `owr_data_link` | DL-1 to DL-7 (Data Link layer) | Done |
+| `owr_network` | NI-2 to NI-4 (Network layer of a node; NI-1 in `owr_core`) | Done |
 | `owr_mib` | MG-1 to MG-3 (register file, register bridge, EDAC monitor) | Done |
 | `owr_core` | Core top level, NI-1, MG-4 | Done |
 

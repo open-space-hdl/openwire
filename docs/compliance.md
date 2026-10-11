@@ -74,10 +74,10 @@ reference included).
 | Module | Requirements | Verified by a test case | Without a test case |
 | --- | --- | --- | --- |
 | `owr_core` | 13 | 13 | - |
-| `owr_dl` | 31 | 31 | - |
-| `owr_enc` | 22 | 22 | - |
+| `owr_data_link` | 31 | 31 | - |
+| `owr_encoding` | 22 | 22 | - |
 | `owr_mib` | 15 | 15 | - |
-| `owr_ni` | 19 | 19 | - |
+| `owr_network` | 19 | 19 | - |
 | `owr_pkg` | 4 | 4 | - |
 
 Requirements: 104; without a test case: 0; test cases of the plans not run by a testbench: 0.

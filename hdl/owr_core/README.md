@@ -1,8 +1,8 @@
 # owr_core
 
-Top level of OpenWire: a SpaceWire port with a node interface (ECSS-E-ST-50-12C Rev.1). It connects the Network
-layer (`owr_ni`), the Data Link layer (`owr_dl`), the Encoding layer (`owr_enc`) and the MIB (`owr_mib`), maps the
-packet ports onto N-Chars (NI-1) and brings the reset into the user, link and management clock domains (MG-4).
+Top level of OpenWire: a SpaceWire port with a node interface (ECSS-E-ST-50-12C Rev.1). It connects the Network layer
+(`owr_network`), the Data Link layer (`owr_data_link`), the Encoding layer (`owr_encoding`) and the MIB (`owr_mib`),
+maps the packet ports onto N-Chars (NI-1) and brings the reset into the user, link and management clock domains (MG-4).
 
 | Document | Content |
 | --- | --- |
