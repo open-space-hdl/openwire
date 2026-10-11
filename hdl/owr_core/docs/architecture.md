@@ -10,7 +10,7 @@
  S_Tc, S_Int, S_IntAck ->| owr_ni (NI-2 .. NI-4) <--> TxBc / RxBc                          |
  M_Tc, M_Int, M_IntAck <-|                                                                  |
             |   owr_mib (MG-1 .. MG-3): configuration, status, events, EDAC                |<----> S_AxiLite, Irq
-            |   MG-4: olo_base_reset_gen per clock domain                                   |-----> Phy_TxEn, Phy_RxEn
+            |   MG-4: olo_ft_reset_gen per clock domain                                     |-----> Phy_TxEn, Phy_RxEn
             +--------------------------------------------------------------------------------------+
 ```
 
@@ -32,8 +32,8 @@ handshake follows AXI4-Stream.
 | `UserClk` | User sides of the transmit, receive, broadcast request and indication FIFOs |
 | `MgmtClk` | AXI4-Lite slave and bridge side of the MIB, `Irq` |
 
-`Rst` is asynchronous and high-active; one `olo_base_reset_gen` per domain synchronises its release. Port reset is the
-PORT_CTRL command of the MIB.
+`Rst` is asynchronous and high-active; one `olo_ft_reset_gen` per domain (three reset synchroniser chains and a
+majority voter) synchronises its release. Port reset is the PORT_CTRL command of the MIB.
 
 ## 4. Ports
 

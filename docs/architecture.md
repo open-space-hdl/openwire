@@ -59,7 +59,7 @@ of open-space-hdl/open-logic-ft, the fault-tolerant fork of Open Logic.
 - Coding conventions: those of Open Logic (naming, two-process style, synchronous high-active resets, VSG rules), entity
   prefix `owr_`, VHDL library `openwire`; see [conventions.md](conventions.md).
 - "FT" (fault-tolerant) means the Open Logic `olo_ft_*` entities: SECDED ECC on every RAM, TMR on every clock domain
-  crossing.
+  crossing and every synchroniser.
 
 | Term | Meaning |
 | --- | --- |
@@ -111,7 +111,7 @@ Three properties of the standard shape the architecture more than any single fea
 
 | Driver | Consequence |
 | --- | --- |
-| Use in space: single event upsets in RAMs, registers and clock domain crossings | SECDED ECC on every FIFO, TMR synchronisers on every crossing, state machines with a recovery state, an EDAC monitor in the MIB (P5) |
+| Use in space: single event upsets in RAMs, registers and clock domain crossings | SECDED ECC on every FIFO, TMR synchronisers on every crossing and on the reset, data and strobe inputs, state machines with a recovery state, an EDAC monitor in the MIB (P5) |
 | Technology independence | A sampling receiver and an integer bit-rate divider in the port clock domain; no vendor primitive (P10) |
 | Integration | AXI4-Stream user ports, one AXI4-Lite register file, independent user and management clocks (P7) |
 | Verifiability | Every block is verified through its ports, with an independent character-level model of the far end (P8, section 9) |
@@ -135,9 +135,9 @@ Three properties of the standard shape the architecture more than any single fea
 | --- | --- | --- |
 | P1 | One protocol function per block | A block implements one ECSS function (a clause or a state machine). Its specification names the clauses it owns; no clause is owned by two blocks. |
 | P2 | Streams everywhere | Every data path between blocks is a valid / ready stream (Open Logic AXI4-Stream conventions) or, where the receiver can never be slower than the source, a valid-only stream of events. |
-| P3 | Few clock domains, proven crossings | Three domains (section 6). Every crossing is built from Open Logic FT entities: `olo_ft_fifo_async` for data, `olo_ft_cc_bits` for levels, `owr_cc_pulse` (a handshake over `olo_ft_cc_bits`) for events, `olo_ft_cc_reset` for resets. |
-| P4 | Explicit state semantics | An ECSS "received" condition is a one-cycle event from the block that decodes it. Every state register has a specified reset value. Resets are synchronous and high-active inside every block; `olo_base_reset_gen` brings the reset into each domain. Port reset is a synchronous command. |
-| P5 | Fault tolerance by construction | All FIFOs are `olo_ft_fifo_*` (SECDED ECC), all crossings are TMR. State machines have a defined recovery state (D8). ECC events are counted in the MIB; a double error is contained (EEP or discarded code) and never passed on as valid data. |
+| P3 | Few clock domains, proven crossings | Three domains (section 6). Every crossing is built from Open Logic FT entities: `olo_ft_fifo_async` for data, `olo_ft_cc_bits` for levels, `owr_cc_pulse` (a handshake over `olo_ft_cc_bits`) for events, `olo_ft_cc_reset` for coupled resets, `olo_ft_reset_gen` for the reset input, `olo_ft_sync` for the asynchronous data and strobe inputs. |
+| P4 | Explicit state semantics | An ECSS "received" condition is a one-cycle event from the block that decodes it. Every state register has a specified reset value. Resets are synchronous and high-active inside every block; `olo_ft_reset_gen` brings the reset into each domain. Port reset is a synchronous command. |
+| P5 | Fault tolerance by construction | All FIFOs are `olo_ft_fifo_*` (SECDED ECC), all crossings and synchronisers are TMR. State machines have a defined recovery state (D8). ECC events are counted in the MIB; a double error is contained (EEP or discarded code) and never passed on as valid data. |
 | P6 | Optional by generics | Time-codes and distributed interrupts are generics (ECSS 5.6.4.1a, 5.6.5.1a); a disabled feature is removed at elaboration and its received codes are ignored. |
 | P7 | One management interface | All management parameters of ECSS 5.7 live in one register file behind one AXI4-Lite port, generated from a single register description (VHDL package, documentation, C header). |
 | P8 | Verifiable in isolation | Each block has a specification and a unit testbench that drives only its ports. Layer and core benches connect real blocks; the far end of the link is a character-level model written independently of the RTL. |
@@ -171,14 +171,14 @@ The FIFOs in brackets are the only data crossings between the clock domains.
 
 | ID | Decision | Reason |
 | --- | --- | --- |
-| D1 | The receiver samples data and strobe with the port clock (one sample per clock cycle) after a synchroniser (two stages by default) and recovers a bit on every change of Data XOR Strobe | Technology independent; tolerant of simultaneous transitions (ECSS 5.4.4f): a simultaneous transition loses two bits, which the parity check detects |
+| D1 | The receiver samples data and strobe with the port clock (one sample per clock cycle) after a TMR synchroniser (two stages by default) and recovers a bit on every change of Data XOR Strobe | Technology independent; tolerant of simultaneous transitions (ECSS 5.4.4f): a simultaneous transition loses two bits, which the parity check detects |
 | D2 | The transmitter shifts one bit per bit period of an integer number of port clock cycles: the initial divider gives 10 Mb/s from the port clock frequency, the run divider is the link speed parameter | Technology independent; the bit rate is exact and free of jitter |
 | D3 | The receiver passes a character to the Data Link layer only after the parity bit of the next character has been checked | ECSS 5.4.2c with the parity coverage of ECSS 5.4.3.4b |
 | D4 | The packet ports carry one N-Char per beat: a beat with `TLast` = '1' is the end of packet marker (`TData(0)` = '0' EOP, '1' EEP) and carries no data byte | Packets of zero data characters (ECSS 5.6.2.1d) and EEPs are represented without a sideband; the beat count equals the N-Char count of the flow control |
 | D5 | The transmit FIFO and the receive FIFO of ECSS 5.2.8 are the crossings between `UserClk` and `LinkClk` | One buffer and one crossing per direction |
-| D6 | The register file is in `LinkClk`; the AXI4-Lite slave in `MgmtClk` forwards every access through one FT FIFO and receives the read data through a second one | All MIB semantics (sticky flags, counters, commands) are in the domain of the protocol; a read always returns the current value and follows every earlier write |
+| D6 | The register file is in `LinkClk`; the AXI4-Lite slave in `MgmtClk` forwards every access through one FT FIFO and receives the read data through a second one | All MIB semantics (sticky flags, counters, commands) are in the domain of the protocol; a read always returns the current value and follows every earlier write; a write completes on the AXI4-Lite side without waiting for `LinkClk`, and consecutive accesses queue in the request FIFO in their order |
 | D7 | The Network layer functions of the node (time-code register, interrupt registers and timers, broadcast code priority) are in `LinkClk`; requests and indications of the user ports cross through one FT FIFO per direction | The priority of ECSS 5.6.3d acts on pending codes in the domain of the Data Link layer; one crossing per direction |
-| D8 | The protocol state machines have a defined recovery state, without TMR: the `when others` branch leads to it from an illegal state where the synthesis tool implements the state machine safe, and the reset input and the port reset restart it from any state | TMR stays where Open Logic provides it (the crossings); a state machine recovers through its recovery state and the link protocol |
+| D8 | The protocol state machines have a defined recovery state, without TMR: the `when others` branch leads to it from an illegal state where the synthesis tool implements the state machine safe, and the reset input and the port reset restart it from any state | TMR stays where Open Logic provides it (the crossings and synchronisers); a state machine recovers through its recovery state and the link protocol |
 | D9 | A double error read from a FIFO is contained: an N-Char becomes an EEP followed by the discard of the rest of the packet, a broadcast request or indication is discarded, a register access or response is dropped (the read then ends with SLVERR after the read timeout) | Corrupted data is never passed on as valid (P5) |
 
 ### Clock domains
@@ -201,7 +201,8 @@ The three clocks may be the same clock; every crossing works for any frequency r
 | ECC events of FIFOs read in `UserClk` or `MgmtClk`, ECC injection commands to write sides in those domains | Events | `owr_cc_pulse`: two-phase handshake over `olo_ft_cc_bits`, TMR registers |
 | Interrupt output of the MIB | Level from `LinkClk` to `MgmtClk` | `olo_ft_cc_bits` |
 | Port reset | Reset of both FIFO sides | Inside `olo_ft_fifo_async` (`olo_ft_cc_reset`) |
-| Reset input | Reset per domain | `olo_base_reset_gen` |
+| Reset input | Reset per domain | `olo_ft_reset_gen` |
+| Data and strobe inputs | Asynchronous line signals into `LinkClk` | `olo_ft_sync` |
 
 ### Internal interfaces
 
@@ -219,12 +220,12 @@ The three clocks may be the same clock; every crossing works for any frequency r
 
 ### Reset
 
-The asynchronous reset input is brought into each clock domain by `olo_base_reset_gen`; inside the blocks all resets
-are synchronous and high-active (Open Logic convention). Port reset (ECSS 5.5.7.1e) is a MIB command in `LinkClk`: it
-clears both FIFOs (the reset input of the `LinkClk` side of an `olo_ft_fifo_async` resets both sides), moves the link
-state machine to ErrorReset and the link error recovery state machine to Normal, sets the time-code register to zero
-(ECSS 5.6.4.3d) and clears the pending broadcast codes and the interrupt registers. It does not change the
-configuration registers.
+The asynchronous reset input is brought into each clock domain by `olo_ft_reset_gen` (three reset synchroniser
+chains and a majority voter); inside the blocks all resets are synchronous and high-active (Open Logic convention).
+Port reset (ECSS 5.5.7.1e) is a MIB command in `LinkClk`: it clears both FIFOs (the reset input of the `LinkClk` side
+of an `olo_ft_fifo_async` resets both sides), moves the link state machine to ErrorReset and the link error recovery
+state machine to Normal, sets the time-code register to zero (ECSS 5.6.4.3d) and clears the pending broadcast codes
+and the interrupt registers. It does not change the configuration registers.
 
 ## 7 Building block specifications
 
@@ -257,7 +258,7 @@ built from and the ECSS requirements it owns (P1: no clause is owned twice).
 | ID | Block | Responsibility | Open Logic | ECSS |
 | --- | --- | --- | --- | --- |
 | EN-1 | Transmitter | Character and control code encoding with odd parity, serialisation, Data-Strobe encoding, first Null, controlled reset of data and strobe, initial and run data signalling rates | none | 5.2.8f, 5.4.2a, e.1, 5.4.3 (encoding), 5.4.4a to e, 5.4.5, 5.4.10, 6.3.1 |
-| EN-2 | Receiver | Data-Strobe decoding, de-serialisation, character decoding, Null detection and gotNull, parity error, ESC error, disconnect, characters passed only after the parity check | `olo_intf_sync` | 5.2.8g, 5.4.2b to d, e.2, f, 5.4.3 (decoding), 5.4.4f, 5.4.6 to 5.4.9, 6.3.2 |
+| EN-2 | Receiver | Data-Strobe decoding, de-serialisation, character decoding, Null detection and gotNull, parity error, ESC error, disconnect, characters passed only after the parity check | `olo_ft_sync` | 5.2.8g, 5.4.2b to d, e.2, f, 5.4.3 (decoding), 5.4.4f, 5.4.6 to 5.4.9, 6.3.2 |
 | EN-3 | Port loopback | Loops data and strobe of the transmitter back to the receiver (MIB) | none | 5.6.10f |
 
 ### 7.4 Receiver timing
@@ -281,7 +282,7 @@ jitter of the transmitter and the cable assembly.
 | MG-1 | Register file | All configuration, control and status parameters of the node in `LinkClk`, generated from one register description (`hdl/owr_mib/regs/owr_regs.yml`, `tools/regmap.py`); commands for port reset, time-codes and interrupts | none (register file) | 5.2.6, 5.3.8, 5.4.11, 5.5.3b, 5.6.7, 5.7.1 to 5.7.6 (node), 6.5 |
 | MG-2 | Register bridge | AXI4-Lite slave in `MgmtClk`; every write and read crosses to MG-1 through one FT FIFO, read data returns through another | `olo_axi_lite_slave`, `olo_ft_fifo_async` | none (transport of 6.5 for MG-1) |
 | MG-3 | EDAC monitor | Counts the SEC and DED events of every FT FIFO, raises an interrupt, injects single and double errors for tests | `olo_ft_ecc_monitor`, `olo_ft_cc_bits`, `olo_ft_cc_reset` (`owr_cc_pulse`) | none (fault tolerance, P5) |
-| MG-4 | Clock and reset | Reset per domain, port reset | `olo_base_reset_gen` | none owned (port reset of 5.5.7.1e for DL-3) |
+| MG-4 | Clock and reset | Reset per domain, port reset | `olo_ft_reset_gen` | none owned (port reset of 5.5.7.1e for DL-3) |
 
 ## 8 Open Logic usage
 
@@ -291,17 +292,16 @@ jitter of the transmitter and the cable assembly.
 | `olo_ft_cc_bits` | MG-1, MG-3 | Interrupt output to `MgmtClk`; request and acknowledge levels of `owr_cc_pulse` (ECC events and injection commands across domains) |
 | `olo_ft_cc_reset` | MG-3 | Coupled resets of both sides of `owr_cc_pulse` |
 | `olo_ft_ecc_monitor` | MG-3 | SEC and DED counters per FIFO, DED sticky flags |
-| `olo_intf_sync` | EN-2 | Synchroniser of the asynchronous data and strobe inputs |
+| `olo_ft_sync` | EN-2 | TMR synchroniser of the asynchronous data and strobe inputs |
+| `olo_ft_reset_gen` | MG-4 | TMR reset synchroniser per clock domain |
 | `olo_base_arb_prio` | NI-3, NI-4 | Priority of broadcast requests and of pending interrupt codes |
 | `olo_axi_lite_slave` | MG-2 | AXI4-Lite access to the register file |
-| `olo_base_reset_gen` | MG-4 | Reset per clock domain |
 
 ### Gaps in Open Logic
 
 | Gap | Resolution in this architecture |
 | --- | --- |
 | No SpaceWire codec | EN-1 and EN-2 are custom blocks |
-| No FT handshake crossing for register accesses | The register bus crosses through two `olo_ft_fifo_async` (D6) |
 | No TMR helper for protocol state machines | Recovery state of every state machine (D8) |
 | `olo_ft_cc_pulse` is built from a set/reset latch per copy (a transparent latch in the FPGA, untimed, gate and data both follow the input pulse) | `owr_cc_pulse`: latch-free two-phase handshake over `olo_ft_cc_bits` with triplicated registers |
 
