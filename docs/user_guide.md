@@ -1,9 +1,9 @@
 # OpenWire User Guide
 
 This guide describes how to integrate the OpenWire core `owr_core` into an FPGA design: sources, generics, clocks,
-interfaces, the connection to the line drivers and receivers, the programming sequence and the performance. The
-architecture is described in [architecture.md](architecture.md), the registers in the generated
-[register map](../hdl/owr_mib/docs/register_map.md).
+interfaces, the connection to the line drivers and receivers, the programming sequence, the performance, the
+integration constraints and the conformance to the standard. The architecture is described in
+[architecture.md](architecture.md), the registers in the generated [register map](../hdl/owr_mib/docs/register_map.md).
 
 ## 1. Sources
 
@@ -84,16 +84,9 @@ depends on it. `Irq` is the OR of the error and event flags enabled in ERRORS_IR
 ### 4.4 Line drivers and receivers (`LinkClk`)
 
 `Spw_DOut` and `Spw_SOut` come from flip-flops and change in the same clock edge, never together. `Spw_DIn` and
-`Spw_SIn` are asynchronous; they enter a synchroniser. The target provides:
-
-- LVDS output buffers for data and strobe (TIA-644-A, ECSS 5.3.6.2), or LVTTL inside a unit (ECSS 5.3.6.3); the
-  enable `Phy_TxEn` (PORT_CTRL.DRIVER_EN) can drive the output enable of a tri-state LVDS buffer;
-- LVDS input buffers with fail-safe biasing (ECSS 5.3.6.2.5) for data and strobe; `Phy_RxEn` (PORT_CTRL.RECEIVER_EN)
-  can drive the enable of the input buffer;
-- output flip-flops placed in the I/O blocks and matched routing of data and strobe, so that the output skew
-  (DSskewOUT, ECSS 5.3.7.2g) stays small;
-- timing constraints: `set_false_path` from `Spw_DIn`, `Spw_SIn` and `Rst` (they are synchronised), and the clock
-  groups of section 3.
+`Spw_SIn` are asynchronous; they enter a TMR synchroniser. `Phy_TxEn` (PORT_CTRL.DRIVER_EN) can drive the output
+enable of a tri-state LVDS buffer, `Phy_RxEn` (PORT_CTRL.RECEIVER_EN) the enable of the input buffer. The I/O buffers
+belong to the design that integrates the core; section 8 lists what the target provides.
 
 The minimum tolerated separation between edges at the receiver (MinsepIN, ECSS 5.3.7.2j) is one `LinkClk` period plus
 the setup and hold window of the input flip-flops.
@@ -103,7 +96,7 @@ the setup and hold window of the input flip-flops.
 | Item | Protection | MIB |
 | --- | --- | --- |
 | FIFOs: transmit, receive, broadcast requests, broadcast indications, register requests, register responses (EDAC channels 0 to 5) | SECDED ECC on the buffer RAM: a single error is corrected, a double error is detected and contained | EVENTS.ECC_SEC, EVENTS.ECC_DED, ECC_STATUS, ECC_COUNT |
-| Clock domain crossings | TMR synchronisers of the Open Logic `olo_ft_*` entities | none |
+| Clock domain crossings, reset input, data and strobe inputs | TMR synchronisers of the Open Logic `olo_ft_*` entities (three synchroniser chains and a majority voter) | none |
 | State machines | Recovery state reached through the `when others` branch and the reset; the link state machine and the link error recovery also through the port reset | none |
 
 A double error is never passed on as valid data: an N-Char read from the transmit FIFO is sent as an EEP and the rest
@@ -139,7 +132,43 @@ discarded. PORT_CTRL.PORT_RESET clears both FIFOs and restarts the link; PORT_CT
 | Credit | Seven FCTs (56 N-Chars) with a receive FIFO of 64 |
 | Latency of a received character | Two bits after its last bit (parity check of the next character) plus the FIFO crossing |
 
-## 8. Verification and checks
+## 8. Integration constraints
+
+| Constraint | Reason |
+| --- | --- |
+| `LinkClkFreq_g` equals the frequency of `LinkClk` | The initial data signalling rate, the disconnect time, the 6.4 us and 12.8 us timers of the link state machine and the interrupt tick are derived from it (ECSS 5.4.8, 5.4.10, 5.5.7) |
+| `LinkClk` lies within 10 % of a multiple of 10 MHz and is fast enough for the disconnect time; elaboration fails otherwise | 10 Mb/s +/- 10 % from an integer divider (ECSS 5.4.10), disconnect after 727 ns to 1 us (ECSS 5.4.8) |
+| The bit period of the far end, reduced by its skew and jitter, is longer than one `LinkClk` period; LINK_SPEED.RUN_DIV is set so that the port does not send faster than the far end can receive | The receiver samples data and strobe once per `LinkClk` period (section 3); SpaceWire has no negotiation of the data signalling rate |
+| LVDS output buffers for data and strobe (TIA-644-A), or LVTTL inside a unit | ECSS 5.3.6.2, 5.3.6.3; the core contains no I/O buffer |
+| LVDS input buffers with fail-safe biasing for data and strobe | ECSS 5.3.6.2.5: an unpowered driver, an open or a shorted line must not produce edges at the receiver output |
+| Output flip-flops of `Spw_DOut` and `Spw_SOut` placed in the I/O blocks, matched routing of data and strobe | Small output skew DSskewOUT (ECSS 5.3.7.2g) |
+| `set_false_path` from `Spw_DIn`, `Spw_SIn` and `Rst`; `LinkClk`, `UserClk` and `MgmtClk` asynchronous to each other (for example `set_clock_groups -asynchronous` in Vivado) | The inputs and the reset enter synchronisers; every crossing between the clocks is an Open Logic FT entity |
+| Safe implementation of state machines enabled in the synthesis tool | Keeps the `when others` recovery of the state machines (section 5) |
+| INT_HOLDOFF and INT_ACK_DELAY set for the network before distributed interrupts are used | Both are zero after reset and depend on the propagation through the network (ECSS 5.6.5.4c, d, 5.6.5.6e; section 4.2) |
+| `M_Pkt_*` is served | The port gives credit only for free places of the receive FIFO (ECSS 5.5.4): a receive port that is not served stops the traffic of the far end on this link |
+| The indication ports `M_Tc_*`, `M_Int_*` and `M_IntAck_*` are served before the indication FIFO (16 entries) fills | An indication that finds the FIFO full is discarded and sets EVENTS.IND_OVERFLOW |
+| Registers are written as 32-bit words; a read that depends on a write waits for the write response | The register file ignores byte enables; AXI4-Lite does not order a read against an earlier write (section 4.3) |
+
+## 9. Conformance
+
+OpenWire implements a SpaceWire port of a node with one end-point according to ECSS-E-ST-50-12C Rev.1; the functions
+of a routing switch are not part of the core. The [compliance matrix](compliance.md) lists the requirements and the
+test cases of every clause. Where the standard leaves a choice, the section "Interpretation of the standard" of the
+module specifications ([owr_enc](../hdl/owr_enc/docs/specification.md),
+[owr_dl](../hdl/owr_dl/docs/specification.md), [owr_ni](../hdl/owr_ni/docs/specification.md)) states the
+behaviour of the core.
+
+| Status | Clauses | Scope |
+| --- | --- | --- |
+| Implemented | 5.2.1 to 5.2.8, 5.3.8, 5.4.2 to 5.4.11, 5.5.2 to 5.5.7.7, 5.5.8, 5.5.9, 5.6.2, 5.6.3, 5.6.4.1 to 5.6.4.5, 5.6.4.8, 5.6.4.9, 5.6.5.1 to 5.6.5.4, 5.6.5.6, 5.6.6, 5.6.7, 6.1 to 6.5 | Encoding layer, Data Link layer, Network layer of a node, MIB of a node and the service interfaces. Time-codes and distributed interrupts are options of the standard (ECSS 5.6.4.1a, 5.6.5.1a), selected by `TimeCodes_g` and `Interrupts_g`; the distributed interrupts support the interrupt mode and the interrupt with acknowledgement mode |
+| Partially implemented | 5.3.6, 5.3.7 | The core drives and receives the data and strobe signals and the enables of the line drivers and receivers, and tolerates the receive skew of section 4.4. The electrical properties of the line drivers and receivers and the output skew are properties of the target (section 8) |
+| Partially implemented | 5.6.10 | 5.6.10f, port loopback (PORT_CTRL.LOOPBACK). 5.6.10a to e describe a network |
+| Partially implemented | 5.7 | 5.7.2a, b, 5.7.3 to 5.7.5 and 5.7.6a (parameters of a node). 5.7.2c, d and 5.7.6b concern routing switches |
+| Not implemented | 5.3.2 to 5.3.5 | Cables, connectors, cable assemblies and PCB tracks: properties of the board and the harness |
+| Not implemented | 5.5.7.8 | Alternative behaviour when LinkDisabled is asserted: a permission for devices of the previous issue of the standard |
+| Not implemented | 5.6.4.6, 5.6.4.7, 5.6.5.5, 5.6.5.7, 5.6.8, 5.6.9 | Routing switch: time-code and interrupt relaying, routing, management parameters of a routing switch |
+
+## 10. Verification and checks
 
 ```shell
 python run.py -p 8                  # regression with GHDL

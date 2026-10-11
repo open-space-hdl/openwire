@@ -99,14 +99,14 @@ architecture rtl of owr_enc_rx is
 
 begin
 
-    -- Synchroniser of the asynchronous inputs
+    -- TMR synchroniser of the asynchronous inputs
     b_sync : block is
         signal Async : std_logic_vector(1 downto 0);
         signal Sync  : std_logic_vector(1 downto 0);
     begin
         Async <= Spw_SIn & Spw_DIn;
 
-        i_sync : entity olo.olo_intf_sync
+        i_sync : entity olo.olo_ft_sync
             generic map (
                 Width_g      => 2,
                 SyncStages_g => SyncStages_g

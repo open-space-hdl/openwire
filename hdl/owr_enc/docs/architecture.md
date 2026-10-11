@@ -12,7 +12,7 @@
               |                                                     +------+ |   | loopback
  Spw_DIn ---->|-------------------------------------------------->--| mux  |<----+
  Spw_SIn ---->|                                                     +------+ |
-              | EN-2 owr_enc_rx: olo_intf_sync -> bit recovery -> Null      |
+              | EN-2 owr_enc_rx: olo_ft_sync -> bit recovery -> Null        |
  RxEnable --->|                  (D XOR S change)    detection -> decoder  |--> RxChar_*, Rx_GotNull,
               |                  disconnect timer          (pending char)   |    Rx_ParityErr, Rx_EscErr,
               +--------------------------------------------------------------+    Rx_Disconnect
@@ -50,9 +50,10 @@ strobe are '0' when it is enabled; the restart during the reset matters only for
 
 ### 3.1 Sampling and bit recovery
 
-`olo_intf_sync` synchronises data and strobe (`SyncStages_g` stages). The previous sample is kept in `PrevD`, `PrevS`;
-an edge is a change of either signal, a bit is a change of data XOR strobe with the value of data. A simultaneous
-change of both signals is an edge but no bit (ECSS 5.4.4f: no lock-up; the lost bit causes a parity error later).
+`olo_ft_sync` synchronises data and strobe (`SyncStages_g` stages in three chains and a majority voter, the latency
+of a single chain). The previous sample is kept in `PrevD`, `PrevS`; an edge is a change of either signal, a bit is a
+change of data XOR strobe with the value of data. A simultaneous change of both signals is an edge but no bit
+(ECSS 5.4.4f: no lock-up; the lost bit causes a parity error later).
 
 ### 3.2 Null detection and decoding
 

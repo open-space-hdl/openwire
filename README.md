@@ -10,7 +10,7 @@ It implements a SpaceWire port with a node interface according to
 rates), Data Link layer (flow control, sending priority, link state machine, link error recovery), the Network layer
 of a node (packet service, time-codes, distributed interrupts) and the Management Information Base with an AXI4-Lite
 register interface. The port contains no vendor code: the receiver samples data and strobe with the port clock, and
-every FIFO and clock domain crossing uses the fault-tolerant entities of
+every FIFO, clock domain crossing and synchroniser uses the fault-tolerant entities of
 [Open Logic](https://github.com/open-logic/open-logic) (SECDED ECC, TMR synchronisers).
 
 ## Status

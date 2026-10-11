@@ -2,7 +2,7 @@
 
 ## 1. Test results
 
-Run on 2026-10-06 with GHDL 6.0.0 (mcode), VUnit 5.0.0.dev7, UVVM 2026.03.20: `python run.py "*owr_enc*"`.
+Run on 2026-10-11 with GHDL 6.0.0 (mcode), VUnit 5.0.0.dev7, UVVM 2026.03.20: `python run.py "*owr_enc*"`.
 
 | Testbench | Tests | Passed |
 | --- | --- | --- |
@@ -27,3 +27,6 @@ Observations:
 - The receiver decodes a far-end bit period of 12 ns with a 100 MHz clock (1.2 clock periods); the model has no
   jitter, so the margin for skew and jitter on a real line is the difference to one clock period.
 - After a simultaneous transition the receiver reported a parity or ESC error within 4 us in all 20 cases.
+- Data and strobe pass the TMR synchroniser `olo_ft_sync` (three chains and a majority voter). Its latency equals
+  that of one chain, so the disconnect time and the receive timing are the same as with a single chain; all 12
+  test cases pass unchanged.
