@@ -1,7 +1,7 @@
 # OpenWire modules in dependency order (compiled into the library openwire by run.py)
 hdl/owr_pkg
-hdl/owr_enc
-hdl/owr_dl
-hdl/owr_ni
+hdl/owr_encoding
+hdl/owr_data_link
+hdl/owr_network
 hdl/owr_mib
 hdl/owr_core

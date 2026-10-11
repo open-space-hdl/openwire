@@ -8,8 +8,10 @@ document. This page lists the rules and the few OpenWire-specific additions.
 - The [Open Logic coding conventions](../open-logic/doc/Conventions.md) apply in full: port names
   `<Interface>_<Signal>`, generics `_g`, constants `_c`, variables `_v`, types `_t`, FSM types `<Name>Fsm_t` with
   states `_s`, functions in `lowerCamelCase`, four spaces of indentation, no tabs, no trailing whitespace.
-- Entities are named `owr_<function>` (for example `owr_enc_tx`). All OpenWire sources are compiled into the VHDL
-  library `openwire`; Open Logic is compiled into the library `olo`.
+- Entities are named `owr_<function>` in full words: a module after its layer (`owr_data_link`), a block after the
+  module and its function (`owr_data_link_flow_control`). Short forms are limited to the common `rx`, `tx`, `pkg`,
+  `regs` and `cc` (clock crossing, as in Open Logic) and the term `mib` of the standard. All OpenWire sources are
+  compiled into the VHDL library `openwire`; Open Logic is compiled into the library `olo`.
 - Language: VHDL-2008.
 - Entities with non-trivial state use the two-process pattern of Open Logic: all registers in one `TwoProcess_r`
   record, signals `r` and `r_next`, a combinational process starting with `v := r;` and ending with

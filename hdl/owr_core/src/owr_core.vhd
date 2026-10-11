@@ -240,7 +240,7 @@ begin
     -----------------------------------------------------------------------------------------------
     -- Network layer (NI-2 to NI-4)
     -----------------------------------------------------------------------------------------------
-    i_ni : entity work.owr_ni
+    i_network : entity work.owr_network
         generic map (
             TimeCodes_g     => TimeCodes_g,
             Interrupts_g    => Interrupts_g,
@@ -310,7 +310,7 @@ begin
     -----------------------------------------------------------------------------------------------
     -- Data Link layer (DL-1 to DL-7)
     -----------------------------------------------------------------------------------------------
-    i_dl : entity work.owr_dl
+    i_data_link : entity work.owr_data_link
         generic map (
             ClkFreq_g     => LinkClkFreq_g,
             TxFifoDepth_g => TxFifoDepth_g,
@@ -373,7 +373,7 @@ begin
     -----------------------------------------------------------------------------------------------
     -- Encoding layer (EN-1 to EN-3)
     -----------------------------------------------------------------------------------------------
-    i_enc : entity work.owr_enc
+    i_encoding : entity work.owr_encoding
         generic map (
             ClkFreq_g    => LinkClkFreq_g,
             SyncStages_g => SyncStages_g

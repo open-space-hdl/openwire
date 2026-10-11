@@ -3,15 +3,15 @@
 ## 1. Block diagram
 
 ```text
-                 UserClk                    LinkClk                                     MgmtClk
-            +--------------------------------------------------------------------------------------+
- S_Pkt ---->| NI-1 (TLast -> marker) --> owr_dl (DL-1 .. DL-7) <--> owr_enc (EN-1 .. EN-3) |-----> Spw_DOut, Spw_SOut
- M_Pkt <----| NI-1 (marker -> TLast) <--                                                   |<----- Spw_DIn, Spw_SIn
- S_Tc, S_Int, S_IntAck ->| owr_ni (NI-2 .. NI-4) <--> TxBc / RxBc                          |
- M_Tc, M_Int, M_IntAck <-|                                                                  |
-            |   owr_mib (MG-1 .. MG-3): configuration, status, events, EDAC                |<----> S_AxiLite, Irq
-            |   MG-4: olo_ft_reset_gen per clock domain                                     |-----> Phy_TxEn, Phy_RxEn
-            +--------------------------------------------------------------------------------------+
+                 UserClk                          LinkClk           MgmtClk
+            +-----------------------------------------------------------------+
+ S_Pkt ---->| NI-1 (TLast -> marker) --> owr_data_link  <--> owr_encoding     |-----> Spw_DOut, Spw_SOut
+ M_Pkt <----| NI-1 (marker -> TLast) <-- (DL-1 .. DL-7)      (EN-1 .. EN-3)   |<----- Spw_DIn, Spw_SIn
+ S_Tc, S_Int, S_IntAck ->| owr_network (NI-2 .. NI-4) <--> TxBc / RxBc        |
+ M_Tc, M_Int, M_IntAck <-|                                                    |
+            |   owr_mib (MG-1 .. MG-3): configuration, status, events, EDAC   |<----> S_AxiLite, Irq
+            |   MG-4: olo_ft_reset_gen per clock domain                       |-----> Phy_TxEn, Phy_RxEn
+            +-----------------------------------------------------------------+
 ```
 
 ## 2. Packet ports (NI-1)
@@ -28,7 +28,7 @@ handshake follows AXI4-Stream.
 
 | Domain | Blocks |
 | --- | --- |
-| `LinkClk` | `owr_enc`, `owr_dl` (except the user sides of the FIFOs), `owr_ni` (except the user sides of its FIFOs), `owr_mib` register file |
+| `LinkClk` | `owr_encoding`, `owr_data_link` (except the user sides of the FIFOs), `owr_network` (except the user sides of its FIFOs), `owr_mib` register file |
 | `UserClk` | User sides of the transmit, receive, broadcast request and indication FIFOs |
 | `MgmtClk` | AXI4-Lite slave and bridge side of the MIB, `Irq` |
 

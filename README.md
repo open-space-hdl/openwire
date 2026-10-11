@@ -68,7 +68,7 @@ Prerequisites: Python 3, [GHDL](https://github.com/ghdl/ghdl) on the `PATH` and 
 git submodule update --init
 python -m pip install -r requirements.txt
 python run.py -p 8              # full regression with GHDL, 8 parallel simulations
-python run.py "*owr_enc*"       # one module
+python run.py "*owr_encoding*"  # one module
 python run.py --questa <test>   # QuestaSim
 python run.py --questa --coverage -p 1  # code coverage, see docs/coverage.md
 ```

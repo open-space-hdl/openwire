@@ -151,12 +151,12 @@ discarded. PORT_CTRL.PORT_RESET clears both FIFOs and restarts the link; PORT_CT
 
 ## 9. Conformance
 
-OpenWire implements a SpaceWire port of a node with one end-point according to ECSS-E-ST-50-12C Rev.1; the functions
-of a routing switch are not part of the core. The [compliance matrix](compliance.md) lists the requirements and the
-test cases of every clause. Where the standard leaves a choice, the section "Interpretation of the standard" of the
-module specifications ([owr_enc](../hdl/owr_enc/docs/specification.md),
-[owr_dl](../hdl/owr_dl/docs/specification.md), [owr_ni](../hdl/owr_ni/docs/specification.md)) states the
-behaviour of the core.
+OpenWire implements a SpaceWire port of a node with one end-point according to ECSS-E-ST-50-12C Rev.1; the functions of
+a routing switch are not part of the core. The [compliance matrix](compliance.md) lists the requirements and the test
+cases of every clause. Where the standard leaves a choice, the section "Interpretation of the standard" of the module
+specifications ([owr_encoding](../hdl/owr_encoding/docs/specification.md),
+[owr_data_link](../hdl/owr_data_link/docs/specification.md), [owr_network](../hdl/owr_network/docs/specification.md))
+states the behaviour of the core.
 
 | Status | Clauses | Scope |
 | --- | --- | --- |
