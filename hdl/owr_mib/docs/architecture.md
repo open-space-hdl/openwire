@@ -2,19 +2,8 @@
 
 ## 1. Block diagram
 
-```text
- MgmtClk                                          |  LinkClk
-                                                  |
- AXI4-Lite --> gating --> olo_axi_lite_slave --> [request FIFO 16 x 45] --> register bus --> MG-1 owr_mib_regs
-               (room)      Rb_Wr, Rb_Rd           |  tag, read, address,                    |  configuration,
-                           Rb_RdData <-- tag check <-- [response FIFO 4 x 34] <-- RdData --+  commands, status,
-                                                  |                                          |  flags, counters
- Irq <---------------------------- olo_ft_cc_bits <----------------------------------------- +  MG-3 olo_ft_ecc_monitor
-                                                  |                                             (6 channels)
- UserClk: ECC events of receive FIFO and broadcast indication FIFO --> owr_cc_pulse --> channels 1, 3
- MgmtClk: ECC events of the response FIFO                         --> owr_cc_pulse --> channel 5
- Injection commands --> owr_cc_pulse --> UserClk (transmit FIFO, broadcast requests), MgmtClk (register requests)
-```
+![Block diagram of owr_mib: register bridge (MG-2) with the AXI4-Lite slave and the request and response FIFOs, register
+file (MG-1) with the EDAC monitor (MG-3), interrupt and ECC crossings](img/owr_mib_arch.drawio.svg)
 
 ## 2. Register bridge (MG-2, `owr_mib_bridge`)
 

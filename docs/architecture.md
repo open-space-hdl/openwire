@@ -150,22 +150,13 @@ OpenWire follows the ECSS protocol stack one to one: the Network layer of a node
 transmit and receive FIFOs, the Encoding layer and the interface to the line drivers and receivers, with the MIB
 reaching every layer.
 
-```text
-             UserClk                         |                 LinkClk                                  |  MgmtClk
-                                             |                                                          |
- S_Pkt ----------------------------------> [DL-1 TX FIFO] --> DL-5 TX scheduler --> EN-1 transmitter --> Spw_DOut/SOut
- M_Pkt <---------------------------------- [DL-2 RX FIFO] <-- DL-6 RX handler <---- EN-2 receiver <---- Spw_DIn/SIn
-                                             |                  |  ^      ^ DL-4 flow control   ^        |
- S_Tc, S_Int, S_IntAck --> NI-4 [req FIFO] ----> NI-2 TC   ---> NI-4 BC arbiter     DL-3 LSM     EN-3    |
- M_Tc, M_Int, M_IntAck <-- NI-4 [ind FIFO] <---- NI-3 INT  <--- (received BCs)      DL-7 recovery loopback|
-                                             |                                                          |
-                                             |      MG-1 register file  <-- [req FIFO] <-- MG-2 bridge <-- AXI4-Lite
-                                             |      MG-3 EDAC monitor   --> [rsp FIFO] --> MG-2 bridge --> (read data)
-```
+![Architecture overview of OpenWire: transmit path (DL-1, DL-5, EN-1) and receive path (EN-2, DL-6, DL-2), Network layer
+(NI-2 to NI-4), flow control (DL-4), link state machine (DL-3), recovery (DL-7), port loopback (EN-3) and MIB (MG-1 to
+MG-3) in the clock domains UserClk, LinkClk and MgmtClk](img/owr_core_overview.drawio.svg)
 
 The transmit path runs from the packet port through the transmit FIFO, the scheduler and the transmitter to the
 data and strobe outputs; the receive path runs back from the receiver through the receive handler and the receive FIFO.
-The FIFOs in brackets are the only data crossings between the clock domains.
+The FIFOs on the clock domain boundaries (dashed lines) are the only data crossings between the clock domains.
 
 ### Architecture decisions
 

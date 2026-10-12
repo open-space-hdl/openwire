@@ -57,6 +57,23 @@ Every module goes through the seven phases of the architecture document (section
 A module is one layer or one group of blocks of the architecture (section 7). Every block keeps its own entity and
 its own unit testbench. `hdl/<module>/README.md` links the four documents and explains how to run the tests.
 
+## Diagrams
+
+- Every architecture document has a block diagram; state machines and data formats have one where text alone is
+  hard to follow.
+- Diagrams are draw.io drawings stored as editable SVG with the drawing embedded (`<name>.drawio.svg`) in the `img/`
+  folder next to the document. The SVG is the source: open it in draw.io to change it. It is exported with the light
+  theme on an opaque white background, so that it reads in both colour schemes of the documentation site.
+- Blocks: light blue for OpenWire logic, white with a blue outline for an OpenWire entity instantiated as a whole,
+  light grey for an Open Logic entity, drawn inside the block that instantiates it. A dashed outline groups the
+  blocks of one entity instance. The title carries the building block ID of the architecture (`DL-5 Transmit
+  scheduler`), the entity follows in grey.
+- Connections: thick lines for streams and buses, thin lines for single signals or signal groups. Every line is
+  horizontal or vertical; a dot marks a branch. A dashed vertical line separates two clock domains; a block on it is
+  a crossing. Ports cross the frame of the entity: user side on the left, line side on the right.
+- A diagram is at most about 1000 px wide, so that its text stays readable in the content column, and its alt text
+  names the blocks it shows.
+
 ## Verification
 
 - VUnit runs every test (`run.py`); UVVM supplies VVCs, BFMs, checks, randomisation and functional coverage.

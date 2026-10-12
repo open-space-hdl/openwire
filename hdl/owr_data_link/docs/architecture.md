@@ -2,46 +2,13 @@
 
 ## 1. Block diagram
 
-```text
- UserClk          |                         LinkClk
-                  |
- TxUser_* ----> [DL-1 olo_ft_fifo_async] --> DL-5 owr_data_link_tx ----------> TxChar_Kind/Data (EN-1)
-                  |        (DED -> EEP)       ^  ^   ^  |  SentNull/Fct/NChar   <- TxChar_Ack
-                  |                  TxBc_* --+  |   |  +----> DL-4 owr_data_link_flow_control --> FctRequest, credits
-                  |                              |   |                     ^  ^
- RxUser_* <-- (DED containment) <-- [DL-2] <-- DL-6 owr_data_link_rx <---- | -+-- RxChar_* (EN-2)
-                  |                    In_Level -------------------------- +
-                  |                            DL-3 owr_data_link_state_machine <-- RxChar_*, errors, Cfg_*,
-                  |                              |  TxEnable, RxEnable, State       SentNull/Fct
-                  |                            DL-7 owr_data_link_recovery --> Rec_Start (DL-5, DL-6), cause
-```
+![Block diagram of owr_data_link: transmit and receive FIFOs (DL-1, DL-2), transmit scheduler (DL-5), receive handler
+(DL-6), flow control (DL-4), recovery (DL-7) and link state machine (DL-3)](img/owr_data_link_arch.drawio.svg)
 
 ## 2. Link state machine (DL-3, `owr_data_link_state_machine`)
 
-```text
-              PortReset (any state)
-                    |
-                    v                  6.4 us AND NOT LinkDisabled
-              +------------+ ----------------------------------> +-----------+
-              | ErrorReset |                                     | ErrorWait | -- 12.8 us --+
-              +------------+ <---------------------------------- +-----------+              |
-                 ^  ^  ^  ^      err OR FCT/N-Char/BC                                       v
-                 |  |  |  |                                                            +-------+
-                 |  |  |  +----------------- err OR FCT/N-Char/BC -------------------- | Ready |
-                 |  |  |                                                              +-------+
-                 |  |  +-- err OR FCT/N-Char/BC OR 12.8 us --- +---------+ <-- LinkStart OR |
-                 |  |                                          | Started |   (AutoStart AND gotNull)
-                 |  |                                          +---------+
-                 |  |                                               | gotNull AND Sent Null
-                 |  +-- err OR N-Char/BC OR 12.8 us -- +------------+ <-+
-                 |                                     | Connecting |
-                 |                                     +------------+
-                 |                                          | gotFCT AND Sent FCT
-                 +-- err OR credit error ----------- +-----+ <-+
-                                                     | Run |
-                                                     +-----+
- err = LinkDisabled OR disconnect OR parity error OR ESC error
-```
+![Link state machine (DL-3): ErrorReset, ErrorWait, Ready, Started, Connecting and Run with their exit
+conditions](img/owr_data_link_state_machine_fsm.drawio.svg)
 
 | State | Transmit Enable | Receive Enable | Characters sent | Timer |
 | --- | --- | --- | --- | --- |
@@ -108,12 +75,8 @@ write register full (impossible with correct credits) is dropped and reported by
 
 ## 6. Link error recovery (DL-7, `owr_data_link_recovery`)
 
-```text
-            error in Run (cause)                one cycle               DL-5 and DL-6 not busy
- Normal ------------------------> Starting ---------------> Recovery --------------------------> Normal
-   ^          Rec_Start pulse                                   |  error in Run: Starting again
-   +------------------------------- port reset (any state) -----+
-```
+![State machine of the link error recovery (DL-7): Normal, Starting and
+Recovery](img/owr_data_link_recovery_fsm.drawio.svg)
 
 The cause is recorded in the order of ECSS 5.5.7.7b: LinkDisabled, disconnect, parity error, ESC error, credit
 error. `Starting` waits one cycle because the recovery actions of DL-5 and DL-6 are registered.
@@ -129,6 +92,7 @@ after it is taken, the FIFO is read without passing words up to and including th
 
 | Signal | Direction | Domain | Description |
 | --- | --- | --- | --- |
+| `Clk`, `Rst`, `UserClk`, `UserRst` | In | | `LinkClk` and `UserClk` with their synchronous resets |
 | `TxUser_Data/Valid/Ready` | In/In/Out | UserClk | N-Chars to send (bit 8 = marker, EOP 0x100, EEP 0x101) |
 | `RxUser_Data/Valid/Ready` | Out/Out/In | UserClk | Received N-Chars |
 | `TxBc_Data/Valid/Ready`, `TxBc_Discarded` | In/In/Out/Out | LinkClk | Broadcast codes from the Network layer |

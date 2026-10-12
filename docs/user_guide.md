@@ -178,5 +178,5 @@ python run.py --compile
 python lint/synth_check.py          # GHDL synthesis of owr_core
 python tools/compliance.py --check  # ECSS traceability
 python tools/regmap.py --check      # generated register map files
-python tools/synth_vivado.py --part <part>  # resources and timing with AMD Vivado (licence for the part needed)
+python tools/synth_vivado.py --part <part>  # resources and timing with AMD Vivado
 ```

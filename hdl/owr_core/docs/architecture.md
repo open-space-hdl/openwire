@@ -2,17 +2,8 @@
 
 ## 1. Block diagram
 
-```text
-                 UserClk                          LinkClk           MgmtClk
-            +-----------------------------------------------------------------+
- S_Pkt ---->| NI-1 (TLast -> marker) --> owr_data_link  <--> owr_encoding     |-----> Spw_DOut, Spw_SOut
- M_Pkt <----| NI-1 (marker -> TLast) <-- (DL-1 .. DL-7)      (EN-1 .. EN-3)   |<----- Spw_DIn, Spw_SIn
- S_Tc, S_Int, S_IntAck ->| owr_network (NI-2 .. NI-4) <--> TxBc / RxBc        |
- M_Tc, M_Int, M_IntAck <-|                                                    |
-            |   owr_mib (MG-1 .. MG-3): configuration, status, events, EDAC   |<----> S_AxiLite, Irq
-            |   MG-4: olo_ft_reset_gen per clock domain                       |-----> Phy_TxEn, Phy_RxEn
-            +-----------------------------------------------------------------+
-```
+![Block diagram of owr_core: packet port (NI-1), owr_data_link, owr_encoding, owr_network, owr_mib and the reset
+generators (MG-4)](img/owr_core_arch.drawio.svg)
 
 ## 2. Packet ports (NI-1)
 

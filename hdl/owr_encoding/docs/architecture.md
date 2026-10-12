@@ -2,22 +2,8 @@
 
 ## 1. Block diagram
 
-```text
-              owr_encoding (LinkClk)
-              +----------------------------------------------------------------------+
- TxChar_* --->| EN-1 owr_encoding_tx: bit timer -> encoder -> shift register         |---+--> Spw_DOut, Spw_SOut
- TxEnable --->|                                    (parity)   (14 bit)               |   |
- TxRun ------>|                                               -> DS encoder          |   |
- Cfg_RunDiv ->|                                                                      |   | EN-3
-              |                                                             +------+ |   | loopback
- Spw_DIn ---->|---------------------------------------------------------->--| mux  |<----+
- Spw_SIn ---->|                                                             +------+ |
-              | EN-2 owr_encoding_rx: olo_ft_sync -> bit recovery -> Null detection  |
- RxEnable --->|                       disconnect     (D XOR S change)                |--> RxChar_*, Rx_GotNull,
-              |                       timer                          -> decoder      |    Rx_ParityErr, Rx_EscErr,
-              |                                                      (pending char)  |    Rx_Disconnect
-              +----------------------------------------------------------------------+
-```
+![Block diagram of owr_encoding: transmitter (EN-1) with bit timer, enable control and encoder, receiver (EN-2) with
+synchroniser, bit recovery, decoder and disconnect timer, and port loopback (EN-3)](img/owr_encoding_arch.drawio.svg)
 
 ## 2. Transmitter (EN-1, `owr_encoding_tx`)
 
@@ -58,13 +44,8 @@ change of data XOR strobe with the value of data. A simultaneous change of both 
 
 ### 3.2 Null detection and decoding
 
-```text
-            RxEnable = '0'                         Window = 011101000
- (reset) ----------------> searching (Window) ----------------------> decoding
-                                ^                                       |  Parity_s -> Flag_s -> Bits_s (8 or 2)
-                                |        RxEnable = '0'                  |      ^                    |
-                                +----------------------------------------+      +--------------------+
-```
+![Null detection and decoding of the receiver: Searching, decoding (Flag_s, Bits_s, Parity_s) and
+Halted](img/owr_encoding_rx_fsm.drawio.svg)
 
 Before gotNull every bit is shifted into the 9-bit `Window`; the Null sequence of ECSS Figure 5-18 asserts gotNull and
 leaves the decoder after the parity bit of the next character. In `Flag_s` the parity check combines the stored parity
