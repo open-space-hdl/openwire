@@ -386,9 +386,10 @@ begin
     Inj_BcIndBitFlip <= flipPattern(eccCodewordWidth(8), InjDouble);
 
     -- Interrupt in MgmtClk
-    i_cc_irq : entity olo.olo_ft_cc_bits
+    i_cc_irq : entity olo.olo_base_cc_bits
         generic map (
-            Width_g => 1
+            Width_g   => 1,
+            SyncTmr_g => true
         )
         port map (
             In_Clk     => Clk,

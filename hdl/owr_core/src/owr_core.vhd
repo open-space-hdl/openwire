@@ -209,21 +209,30 @@ begin
     -----------------------------------------------------------------------------------------------
     -- MG-4 Clock and reset: the asynchronous reset brought into each domain by a TMR synchroniser
     -----------------------------------------------------------------------------------------------
-    i_rst_user : entity olo.olo_ft_reset_gen
+    i_rst_user : entity olo.olo_base_reset_gen
+        generic map (
+            SyncTmr_g => true
+        )
         port map (
             Clk    => UserClk,
             RstOut => UserRst,
             RstIn  => Rst
         );
 
-    i_rst_link : entity olo.olo_ft_reset_gen
+    i_rst_link : entity olo.olo_base_reset_gen
+        generic map (
+            SyncTmr_g => true
+        )
         port map (
             Clk    => LinkClk,
             RstOut => LinkRst,
             RstIn  => Rst
         );
 
-    i_rst_mgmt : entity olo.olo_ft_reset_gen
+    i_rst_mgmt : entity olo.olo_base_reset_gen
+        generic map (
+            SyncTmr_g => true
+        )
         port map (
             Clk    => MgmtClk,
             RstOut => MgmtRst,

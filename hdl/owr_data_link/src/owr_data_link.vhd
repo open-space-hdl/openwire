@@ -154,7 +154,8 @@ begin
         generic map (
             Width_g         => 9,
             Depth_g         => TxFifoDepth_g,
-            ReadyRstState_g => '0'
+            ReadyRstState_g => '0',
+            SyncTmr_g       => true
         )
         port map (
             In_Clk            => UserClk,
@@ -185,7 +186,8 @@ begin
         generic map (
             Width_g         => 9,
             Depth_g         => RxFifoDepth_g,
-            ReadyRstState_g => '0'
+            ReadyRstState_g => '0',
+            SyncTmr_g       => true
         )
         port map (
             In_Clk            => Clk,

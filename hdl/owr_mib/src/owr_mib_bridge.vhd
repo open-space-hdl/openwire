@@ -187,7 +187,8 @@ begin
             Depth_g         => ReqDepth_g,
             AlmFullOn_g     => true,
             AlmFullLevel_g  => ReqDepth_g - 2,
-            ReadyRstState_g => '0'
+            ReadyRstState_g => '0',
+            SyncTmr_g       => true
         )
         port map (
             In_Clk            => MgmtClk,
@@ -235,7 +236,8 @@ begin
         generic map (
             Width_g         => RspWidth_c,
             Depth_g         => 4,
-            ReadyRstState_g => '0'
+            ReadyRstState_g => '0',
+            SyncTmr_g       => true
         )
         port map (
             In_Clk            => Clk,

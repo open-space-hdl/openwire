@@ -16,7 +16,7 @@ document. This page lists the rules and the few OpenWire-specific additions.
 - Entities with non-trivial state use the two-process pattern of Open Logic: all registers in one `TwoProcess_r`
   record, signals `r` and `r_next`, a combinational process starting with `v := r;` and ending with
   `r_next <= v;`, a sequential process with `r <= r_next;` and the reset override at its end.
-- Resets are synchronous and high-active. Only state registers are reset. `olo_ft_reset_gen` brings the reset
+- Resets are synchronous and high-active. Only state registers are reset. `olo_base_reset_gen` brings the reset
   into each clock domain.
 - Every data path between blocks is a valid / ready stream (AXI4-Stream handshake semantics) or a valid-only stream
   of one-cycle events where the receiver is never slower than the source.

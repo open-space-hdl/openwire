@@ -187,7 +187,8 @@ begin
         generic map (
             Width_g         => 8,
             Depth_g         => ReqDepth_g,
-            ReadyRstState_g => '0'
+            ReadyRstState_g => '0',
+            SyncTmr_g       => true
         )
         port map (
             In_Clk            => UserClk,
@@ -290,7 +291,8 @@ begin
         generic map (
             Width_g         => 8,
             Depth_g         => IndDepth_g,
-            ReadyRstState_g => '0'
+            ReadyRstState_g => '0',
+            SyncTmr_g       => true
         )
         port map (
             In_Clk            => Clk,

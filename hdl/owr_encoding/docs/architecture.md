@@ -37,10 +37,10 @@ strobe are '0' when it is enabled; the restart during the reset matters only for
 
 ### 3.1 Sampling and bit recovery
 
-`olo_ft_sync` synchronises data and strobe (`SyncStages_g` stages in three chains and a majority voter, the latency
-of a single chain). The previous sample is kept in `PrevD`, `PrevS`; an edge is a change of either signal, a bit is a
-change of data XOR strobe with the value of data. A simultaneous change of both signals is an edge but no bit
-(ECSS 5.4.4f: no lock-up; the lost bit causes a parity error later).
+`olo_intf_sync` with `SyncTmr_g` = true synchronises data and strobe (`SyncStages_g` stages in three chains and a
+majority voter, the latency of a single chain). The previous sample is kept in `PrevD`, `PrevS`; an edge is a
+change of either signal, a bit is a change of data XOR strobe with the value of data. A simultaneous change of both
+signals is an edge but no bit (ECSS 5.4.4f: no lock-up; the lost bit causes a parity error later).
 
 ### 3.2 Null detection and decoding
 

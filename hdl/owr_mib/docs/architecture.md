@@ -29,7 +29,7 @@ The register map is in [register_map.md](register_map.md). The file is one two-p
 | Sticky flags (W1C) | `flags := (flags AND NOT written) OR events`: an event in the cycle of a clear is kept |
 | Counters (RC) | Saturating; any write clears; the increment of the same cycle is lost only with the clear |
 | Link up, link down, Run entries, recoveries | Edges of the link state (Run) and of the recovery state |
-| Irq | Registered OR of (ERRORS AND ERRORS_IRQ_EN) and (EVENTS AND EVENTS_IRQ_EN), crossed to `MgmtClk` by `olo_ft_cc_bits` |
+| Irq | Registered OR of (ERRORS AND ERRORS_IRQ_EN) and (EVENTS AND EVENTS_IRQ_EN), crossed to `MgmtClk` by `olo_base_cc_bits` |
 
 ## 4. EDAC (MG-3)
 
