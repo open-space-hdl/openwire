@@ -2,7 +2,7 @@
 
 ## 1. Test results
 
-Run on 2026-10-11 with GHDL 6.0.0 (mcode), VUnit 5.0.0.dev7, UVVM 2026.03.20: `python run.py "*owr_network*"`.
+Run on 2026-10-12 with GHDL 6.0.0 (mcode), VUnit 5.0.0.dev7, UVVM 2026.03.20: `python run.py "*owr_network*"`.
 
 | Testbench | Tests | Passed |
 | --- | --- | --- |

@@ -106,10 +106,11 @@ begin
     begin
         Async <= Spw_SIn & Spw_DIn;
 
-        i_sync : entity olo.olo_ft_sync
+        i_sync : entity olo.olo_intf_sync
             generic map (
                 Width_g      => 2,
-                SyncStages_g => SyncStages_g
+                SyncStages_g => SyncStages_g,
+                SyncTmr_g    => true
             )
             port map (
                 Clk       => Clk,

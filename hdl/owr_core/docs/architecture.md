@@ -23,8 +23,8 @@ handshake follows AXI4-Stream.
 | `UserClk` | User sides of the transmit, receive, broadcast request and indication FIFOs |
 | `MgmtClk` | AXI4-Lite slave and bridge side of the MIB, `Irq` |
 
-`Rst` is asynchronous and high-active; one `olo_ft_reset_gen` per domain (three reset synchroniser chains and a
-majority voter) synchronises its release. Port reset is the PORT_CTRL command of the MIB.
+`Rst` is asynchronous and high-active; one `olo_base_reset_gen` per domain with `SyncTmr_g` = true (three reset
+synchroniser chains and a majority voter) synchronises its release. Port reset is the PORT_CTRL command of the MIB.
 
 ## 4. Ports
 

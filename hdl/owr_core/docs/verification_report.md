@@ -2,7 +2,7 @@
 
 ## 1. Test results
 
-Run on 2026-10-11 with GHDL 6.0.0 (mcode), VUnit 5.0.0.dev7, UVVM 2026.03.20: `python run.py "*owr_core*"`.
+Run on 2026-10-12 with GHDL 6.0.0 (mcode), VUnit 5.0.0.dev7, UVVM 2026.03.20: `python run.py "*owr_core*"`.
 
 | Testbench | Tests | Passed |
 | --- | --- | --- |
@@ -13,7 +13,7 @@ Run on 2026-10-11 with GHDL 6.0.0 (mcode), VUnit 5.0.0.dev7, UVVM 2026.03.20: `p
 All test cases pass; every requirement of the specification is covered (see the verification plan) and every seam
 listed in the plan is crossed. VSG reports no errors and no warnings; `python lint/synth_check.py` synthesizes
 `owr_core` with GHDL with and without the broadcast services, without errors and without inferred latches. The
-reset of each clock domain comes from the TMR reset synchroniser `olo_ft_reset_gen`.
+reset of each clock domain comes from the triplicated reset synchroniser of `olo_base_reset_gen`.
 
 Measured values:
 

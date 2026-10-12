@@ -84,7 +84,7 @@ depends on it. `Irq` is the OR of the error and event flags enabled in ERRORS_IR
 ### 4.4 Line drivers and receivers (`LinkClk`)
 
 `Spw_DOut` and `Spw_SOut` come from flip-flops and change in the same clock edge, never together. `Spw_DIn` and
-`Spw_SIn` are asynchronous; they enter a TMR synchroniser. `Phy_TxEn` (PORT_CTRL.DRIVER_EN) can drive the output
+`Spw_SIn` are asynchronous; they enter a triplicated synchroniser. `Phy_TxEn` (PORT_CTRL.DRIVER_EN) can drive the output
 enable of a tri-state LVDS buffer, `Phy_RxEn` (PORT_CTRL.RECEIVER_EN) the enable of the input buffer. The I/O buffers
 belong to the design that integrates the core; section 8 lists what the target provides.
 
@@ -96,7 +96,7 @@ the setup and hold window of the input flip-flops.
 | Item | Protection | MIB |
 | --- | --- | --- |
 | FIFOs: transmit, receive, broadcast requests, broadcast indications, register requests, register responses (EDAC channels 0 to 5) | SECDED ECC on the buffer RAM: a single error is corrected, a double error is detected and contained | EVENTS.ECC_SEC, EVENTS.ECC_DED, ECC_STATUS, ECC_COUNT |
-| Clock domain crossings, reset input, data and strobe inputs | TMR synchronisers of the Open Logic `olo_ft_*` entities (three synchroniser chains and a majority voter) | none |
+| Clock domain crossings, reset input, data and strobe inputs | Triplicated synchronisers of the Open Logic clock crossings (`SyncTmr_g` = true: three synchroniser chains and a majority voter, no voters between the stages) | none |
 | State machines | Recovery state reached through the `when others` branch and the reset; the link state machine and the link error recovery also through the port reset | none |
 
 A double error is never passed on as valid data: an N-Char read from the transmit FIFO is sent as an EEP and the rest
@@ -142,7 +142,7 @@ discarded. PORT_CTRL.PORT_RESET clears both FIFOs and restarts the link; PORT_CT
 | LVDS output buffers for data and strobe (TIA-644-A), or LVTTL inside a unit | ECSS 5.3.6.2, 5.3.6.3; the core contains no I/O buffer |
 | LVDS input buffers with fail-safe biasing for data and strobe | ECSS 5.3.6.2.5: an unpowered driver, an open or a shorted line must not produce edges at the receiver output |
 | Output flip-flops of `Spw_DOut` and `Spw_SOut` placed in the I/O blocks, matched routing of data and strobe | Small output skew DSskewOUT (ECSS 5.3.7.2g) |
-| `set_false_path` from `Spw_DIn`, `Spw_SIn` and `Rst`; `LinkClk`, `UserClk` and `MgmtClk` asynchronous to each other (for example `set_clock_groups -asynchronous` in Vivado) | The inputs and the reset enter synchronisers; every crossing between the clocks is an Open Logic FT entity |
+| `set_false_path` from `Spw_DIn`, `Spw_SIn` and `Rst`; `LinkClk`, `UserClk` and `MgmtClk` asynchronous to each other (for example `set_clock_groups -asynchronous` in Vivado) | The inputs and the reset enter synchronisers; every crossing between the clocks is an Open Logic entity with triplicated synchronisers |
 | Safe implementation of state machines enabled in the synthesis tool | Keeps the `when others` recovery of the state machines (section 5) |
 | INT_HOLDOFF and INT_ACK_DELAY set for the network before distributed interrupts are used | Both are zero after reset and depend on the propagation through the network (ECSS 5.6.5.4c, d, 5.6.5.6e; section 4.2) |
 | `M_Pkt_*` is served | The port gives credit only for free places of the receive FIFO (ECSS 5.5.4): a receive port that is not served stops the traffic of the far end on this link |

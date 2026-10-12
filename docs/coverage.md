@@ -29,7 +29,7 @@ Closure rules:
 
 ## 2. Result
 
-Run on 2026-10-11: 84 tests, all passed, 15 minutes in one simulator process. Numbers are covered/total bins per
+Run on 2026-10-12: 84 tests, all passed, 14 minutes in one simulator process. Numbers are covered/total bins per
 file; bold marks a metric with misses.
 
 | File | Statements | Branches | FSM States | FSM Transitions | Conditions | Expressions |
@@ -92,7 +92,7 @@ package function are reported as not executed. None of them is behaviour that a 
 | --- | --- | --- |
 | `owr_data_link/src/owr_data_link_rx.vhd:111`, statement 112 | Branch: N-Char lost because the write register to the receive FIFO is occupied (EVENTS.RX_OVERFLOW) | Defensive. The flow control (DL-4) gives credit only for free places of the receive FIFO, so the FIFO always accepts the word, and received N-Chars are at least four bits apart, while the write register empties in one cycle. |
 | `owr_data_link/src/owr_data_link_recovery.vhd:138` | Transition Starting to Normal | Reset input asserted in the one-cycle state Starting. The return to Normal is covered from Recovery, at the end of the recovery actions and by the port reset (TC-DL-06). |
-| `owr_encoding/src/owr_encoding_rx.vhd:319` | Transition Flag to Parity | Reset input asserted while the receiver waits for the data-control flag of a character, a state of one bit period. The phase is used only after the first Null, whose detection sets it (line 230), so its reset value has no effect; the first Null after a reset is covered by TC-EN-10. |
+| `owr_encoding/src/owr_encoding_rx.vhd:320` | Transition Flag to Parity | Reset input asserted while the receiver waits for the data-control flag of a character, a state of one bit period. The phase is used only after the first Null, whose detection sets it (line 230), so its reset value has no effect; the first Null after a reset is covered by TC-EN-10. |
 | `owr_pkg/src/owr_pkg.vhd:162` to `166` | Statements: body of `xorReduce` | The calls on lines 88 and 103 of `owr_encoding_tx.vhd` are covered; QuestaSim evaluates the call without executing the body as statements. The result, the parity of every transmitted character, is checked by TC-EN-02 and TC-EN-03. |
 
 ## 5. Reproduction
