@@ -2,19 +2,8 @@
 
 ## 1. Block diagram
 
-```text
- UserClk                         |                       LinkClk
-                                 |
- S_Tc, S_Ack, S_Int --> priority --> [request FIFO] --+--> NI-2 owr_network_time_code --TxTc--+
- (AXI4-Stream)       TC > ACK > INT  (8 x 8 bit)      |                                       |
-                                 |   Mib_* requests --+--> NI-3 owr_network_interrupt --TxAck-+--> NI-4 p_tx
-                                 |   (precedence)          (timers, register)         --TxInt-+    TC > ACK > INT
-                                 |                                                                 --> TxBc (DL-5)
-                                 |                                                                 <-- TxBc_Discarded
- M_Tc, M_Int, M_Ack <-- demux <-- [indication FIFO] <-- IndTc / IndInt / IndAck
-                                 |  (16 x 8 bit)       NI-4 decode <-- RxBc (DL-6): type 00 TC, 10 INT / ACK,
-                                 |                                      01, 11 or disabled service: ignored
-```
+![Block diagram of owr_network: broadcast code service (NI-4) with priority, request and indication FIFOs, demultiplexer
+and link side, time-code service (NI-2) and distributed interrupts (NI-3)](img/owr_network_arch.drawio.svg)
 
 Entries of both FIFOs: kind (bits 7:6: 0b00 time-code, 0b01 interrupt, 0b10 acknowledgement) and value (bits 5:0).
 
@@ -63,6 +52,7 @@ acknowledgement requests are reported as discarded).
 
 | Signal | Domain | Description |
 | --- | --- | --- |
+| `Clk`, `Rst`, `UserClk`, `UserRst` | | `LinkClk` and `UserClk` with their synchronous resets |
 | `S_Tc_*` (6 bit), `S_Int_*`, `S_Ack_*` (5 bit) | UserClk | TIME-CODE.request, DISTRIBUTED_INTERRUPT.request, DISTRIBUTED_INTERRUPT_ACK.request |
 | `M_Tc_*`, `M_Int_*`, `M_Ack_*` | UserClk | The indications |
 | `Mib_*Valid`, `Mib_TcValue`, `Mib_IntIid`, `Mib_AckIid` | LinkClk | Requests of the MIB |
