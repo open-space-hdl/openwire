@@ -11,6 +11,9 @@ library `openwire`, then runs all testbenches.
 GHDL is the default simulator. `--questa` selects QuestaSim; `--questa --coverage` collects the code coverage
 (statements, branches, conditions, expressions, state machines) of the OpenWire sources and merges it into
 coverage/coverage.ucdb with the text report coverage/coverage_report.txt.
+
+`--compile-order` writes compile_order.txt, the synthesis sources of the library `openwire` (hdl/*/src) in the
+compile order of the VUnit dependency scan, and exits without simulating.
 """
 
 import importlib.util
@@ -28,6 +31,9 @@ QUESTA_DEFAULT_PATH = r"D:\Microchip\Libero_SoC_2025.2\Libero_SoC\QuestaSim_Pro\
 COVERAGE = "--coverage" in sys.argv
 if COVERAGE:
     sys.argv.remove("--coverage")
+COMPILE_ORDER = "--compile-order" in sys.argv
+if COMPILE_ORDER:
+    sys.argv.remove("--compile-order")
 if "--questa" in sys.argv:
     sys.argv.remove("--questa")
     os.environ["VUNIT_SIMULATOR"] = "modelsim"
@@ -134,12 +140,28 @@ def merge_coverage(results):
                    check=False)
 
 
+def write_compile_order(vu):
+    """Writes compile_order.txt: the files of hdl/*/src of the library openwire in compile order."""
+    src_dirs = {(ROOT / module / "src").resolve() for module in read_component_list()}
+    lines = []
+    for source in vu.get_compile_order():
+        path = Path(source.name).resolve()
+        if source.library.name == "openwire" and path.parent in src_dirs:
+            lines.append(path.relative_to(ROOT).as_posix())
+    with open(ROOT / "compile_order.txt", "w", encoding="utf-8", newline="\n") as out:
+        out.write("\n".join(lines) + "\n")
+    print(f"compile_order.txt: {len(lines)} files")
+
+
 def main():
     vu = VUnit.from_argv()
     vu.add_vhdl_builtins()
     add_open_logic(vu)
     add_uvvm(vu)
     lib, modules = add_openwire(vu)
+    if COMPILE_ORDER:
+        write_compile_order(vu)
+        return
     apply_module_configs(lib, modules)
     set_simulator_options(vu)
     if COVERAGE:
