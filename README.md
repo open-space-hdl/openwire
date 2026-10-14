@@ -56,6 +56,7 @@ openwire/
 |-- open-logic/       Git submodule: Open Logic (fault-tolerant entities branch)
 |-- uvvm/             Git submodule: UVVM verification framework
 |-- component_list.txt  Modules in dependency order
+|-- compile_order.txt   Synthesis sources in compile order (python run.py --compile-order)
 `-- run.py            VUnit regression runner
 ```
 

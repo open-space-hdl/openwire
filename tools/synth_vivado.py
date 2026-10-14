@@ -27,11 +27,7 @@ def sources():
         rel = line.strip()
         if rel and rel.split("/")[1] in OLO_AREAS:
             olo.append(ROOT / "open-logic" / rel)
-    owr = []
-    for line in (ROOT / "component_list.txt").read_text().splitlines():
-        name = line.strip()
-        if name and not name.startswith("#"):
-            owr += sorted((ROOT / name / "src").glob("*.vhd"))
+    owr = [ROOT / line.strip() for line in (ROOT / "compile_order.txt").read_text().splitlines() if line.strip()]
     return olo, owr
 
 
