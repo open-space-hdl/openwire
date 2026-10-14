@@ -36,8 +36,11 @@ the clock constraints for AMD Vivado.
 | `MgmtClk` | AXI4-Lite port and `Irq` | Any frequency |
 
 The three clocks may be the same clock. `Rst` is an asynchronous high-active reset; the core synchronises its release
-in each domain. Every crossing between the domains is an Open Logic FT FIFO or synchroniser; declare the clocks
-asynchronous to each other (for example `set_clock_groups -asynchronous` in Vivado).
+in each domain. Every crossing between the domains is an Open Logic FT FIFO or synchroniser. Constrain each pair of
+different clocks in both directions with `set_max_delay -datapath_only` and the period of the faster clock, as the
+Open Logic clock crossing principles describe; in Vivado the scoped constraints of the Open Logic crossings add the
+bus skew limits. Do not declare the clocks as asynchronous clock groups: `set_clock_groups -asynchronous` overrides
+these delay constraints.
 
 | `LinkClk` | Initial rate | Fastest transmit rate (divider 1) | Fastest receive rate (bit period > 1.2 periods) |
 | --- | --- | --- | --- |
@@ -142,7 +145,7 @@ discarded. PORT_CTRL.PORT_RESET clears both FIFOs and restarts the link; PORT_CT
 | LVDS output buffers for data and strobe (TIA-644-A), or LVTTL inside a unit | ECSS 5.3.6.2, 5.3.6.3; the core contains no I/O buffer |
 | LVDS input buffers with fail-safe biasing for data and strobe | ECSS 5.3.6.2.5: an unpowered driver, an open or a shorted line must not produce edges at the receiver output |
 | Output flip-flops of `Spw_DOut` and `Spw_SOut` placed in the I/O blocks, matched routing of data and strobe | Small output skew DSskewOUT (ECSS 5.3.7.2g) |
-| `set_false_path` from `Spw_DIn`, `Spw_SIn` and `Rst`; `LinkClk`, `UserClk` and `MgmtClk` asynchronous to each other (for example `set_clock_groups -asynchronous` in Vivado) | The inputs and the reset enter synchronisers; every crossing between the clocks is an Open Logic entity with triplicated synchronisers |
+| `set_false_path` from `Spw_DIn`, `Spw_SIn` and `Rst`; `set_max_delay -datapath_only` with the period of the faster clock between each pair of `LinkClk`, `UserClk` and `MgmtClk` (no asynchronous clock groups) | The inputs and the reset enter synchronisers; every crossing between the clocks is an Open Logic entity with triplicated synchronisers |
 | Safe implementation of state machines enabled in the synthesis tool | Keeps the `when others` recovery of the state machines (section 5) |
 | INT_HOLDOFF and INT_ACK_DELAY set for the network before distributed interrupts are used | Both are zero after reset and depend on the propagation through the network (ECSS 5.6.5.4c, d, 5.6.5.6e; section 4.2) |
 | `M_Pkt_*` is served | The port gives credit only for free places of the receive FIFO (ECSS 5.5.4): a receive port that is not served stops the traffic of the far end on this link |
