@@ -46,7 +46,16 @@ def tcl(part, link_mhz):
         f"create_clock -name LinkClk -period {link_ns:.3f} [get_ports LinkClk]",
         "create_clock -name UserClk -period 10.000 [get_ports UserClk]",
         "create_clock -name MgmtClk -period 10.000 [get_ports MgmtClk]",
-        "set_clock_groups -asynchronous -group LinkClk -group UserClk -group MgmtClk",
+    ]
+    # Clock crossings: delay constraint with the period of the faster clock for each pair (Open Logic clock crossing
+    # principles); asynchronous clock groups would override the constraints of the Open Logic crossings
+    periods = {"LinkClk": link_ns, "UserClk": 10.0, "MgmtClk": 10.0}
+    for src, src_ns in periods.items():
+        for dst, dst_ns in periods.items():
+            if src != dst:
+                lines.append(f"set_max_delay -datapath_only -from [get_clocks {src}] -to [get_clocks {dst}] "
+                             f"{min(src_ns, dst_ns):.3f}")
+    lines += [
         "set_false_path -from [get_ports {Spw_DIn Spw_SIn Rst}]",
         f"report_utilization -file {(OUT / 'utilization_synth.txt').as_posix()}",
         "opt_design",
