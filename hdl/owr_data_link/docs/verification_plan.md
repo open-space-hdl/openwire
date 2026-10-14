@@ -35,6 +35,7 @@ Simulator: GHDL. The run divider of the ports is 1 (100 Mb/s) unless stated.
 | `test_link_traffic` (TC-DL-40) | Ports A and B: 60 packets of 0 to 300 bytes in each direction with EOP and EEP; 20 packets of 1000 bytes at 100 Mb/s at 95 % or more of 8 Mb/s user data per 10 Mb/s | DL-IF-01, DL-FI-01, DL-TX-01, DL-RX-01 |
 | `test_link_backpressure` (TC-DL-41) | Random gaps on the transmit side and random back-pressure on the receive side, 50 packets | DL-IF-01, DL-FC-04 |
 | `test_link_restart` (TC-DL-42) | Line cut for 3 us in the middle of a packet: both ports restart, the packet arrives as a prefix with EEP, the following packets are complete | DL-TX-04, DL-RX-02, DL-RC-01 |
+| `test_user_rate` (TC-DL-43) | Bursts of 15 and 39 beats into the transmit port of A before the link starts and out of the receive port of B with the packets waiting in its receive FIFO: the burst of 39 beats takes at most 40 `UserClk` cycles on both ports (one beat per cycle) | DL-IF-01, DL-FI-01 |
 | `test_ecc_tx` (TC-DL-50) | Single error injected into the transmit FIFO corrected and counted; double error: EEP sent, rest of the packet discarded, next packet complete | DL-TX-05 |
 | `test_ecc_rx` (TC-DL-51) | Single error injected into the receive FIFO corrected and counted; double error: EEP passed, rest of the packet discarded, next packet complete | DL-FI-03 |
 
@@ -42,11 +43,11 @@ Simulator: GHDL. The run divider of the ports is 1 (100 Mb/s) unless stated.
 
 | Requirement | Test cases |
 | --- | --- |
-| DL-IF-01 | TC-DL-40, TC-DL-41 |
+| DL-IF-01 | TC-DL-40, TC-DL-41, TC-DL-43 |
 | DL-IF-02 | TC-DL-21 |
 | DL-IF-03, DL-IF-04, DL-IF-06 | TC-DL-01 |
 | DL-IF-05 | TC-DL-01, TC-DL-02 |
-| DL-FI-01 | TC-DL-06, TC-DL-40 |
+| DL-FI-01 | TC-DL-06, TC-DL-40, TC-DL-43 |
 | DL-FI-02 | TC-DL-06 |
 | DL-FI-03 | TC-DL-51 |
 | DL-LS-01 to DL-LS-07 | TC-DL-01, TC-DL-03, TC-DL-04, TC-DL-05 |
