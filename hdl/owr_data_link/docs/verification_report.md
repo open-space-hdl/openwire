@@ -9,7 +9,8 @@ Run on 2026-10-14 with GHDL 6.0.0 (mcode), VUnit 5.0.0.dev7, UVVM 2026.03.20: `p
 | `owr_data_link_tb` | 20 | 20 |
 
 QuestaSim (Questa Pro Microchip Edition 2024.3) on 2026-10-14, complete regression without code coverage
-(`python run.py --questa -p 1`): all 19 tests pass.
+(`python run.py --questa -p 1`): all 19 tests pass. TC-DL-43, added afterwards, passes in QuestaSim without and with
+code coverage with the same cycle counts as in GHDL.
 
 ## 2. Summary
 
