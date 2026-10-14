@@ -2,18 +2,19 @@
 
 ## 1. Test results
 
-Run on 2026-10-12 with GHDL 6.0.0 (mcode), VUnit 5.0.0.dev7, UVVM 2026.03.20: `python run.py "*owr_data_link*"`.
+Run on 2026-10-14 with GHDL 6.0.0 (mcode), VUnit 5.0.0.dev7, UVVM 2026.03.20: `python run.py "*owr_data_link*"`.
 
 | Testbench | Tests | Passed |
 | --- | --- | --- |
-| `owr_data_link_tb` | 19 | 19 |
+| `owr_data_link_tb` | 20 | 20 |
 
 QuestaSim (Questa Pro Microchip Edition 2024.3) on 2026-10-14, complete regression without code coverage
-(`python run.py --questa -p 1`): all 19 tests pass.
+(`python run.py --questa -p 1`): all 19 tests pass. TC-DL-43, added afterwards, passes in QuestaSim without and with
+code coverage with the same cycle counts as in GHDL.
 
 ## 2. Summary
 
-All 19 test cases pass; every requirement of the specification is covered (see the verification plan). VSG reports
+All 20 test cases pass; every requirement of the specification is covered (see the verification plan). VSG reports
 no errors and no warnings.
 
 Measured values:
@@ -23,6 +24,7 @@ Measured values:
 | ErrorReset, ErrorWait, Started and Connecting timers | 6.4 us and 12.8 us within the ranges of ECSS 5.5.7.1c, d |
 | FCTs sent in Connecting with a receive FIFO of 64 | 7 |
 | User data throughput at 100 Mb/s, packets of 1000 bytes | 79.96 Mb/s (99.9 % of the 80 Mb/s of 10-bit data characters) |
+| Rate of the packet ports, `UserClk` 83.3 MHz | 39 beats in 39 cycles on the transmit port of A and on the receive port of B (one beat per cycle); the first burst of 15 beats on the transmit port takes 19 cycles, including the start-up of the VVC |
 
 Findings:
 

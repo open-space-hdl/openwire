@@ -864,6 +864,43 @@ begin
                 check_value(StatB.CntRun, 2, error, "B restarted once");
                 check_value(StatA.Cause, CauseDisconnect_c, error, "cause at A");
 
+            elsif run("test_user_rate") then
+                -- TC-DL-43
+                -- Two bursts of 15 and 39 beats (data and EOP) on each packet port, UserClk period 12 ns. The first
+                -- burst also takes the start-up time of the VVC; the second one shows the rate of the port.
+                -- Transmit port: both packets go into the empty transmit FIFO of A before the link starts, so that
+                -- no character is read meanwhile.
+                LinkMode <= '1';
+                T_v      := now;
+                axistream_transmit(AXISTREAM_VVCT, VvcATx_c, owrCountPacket(14, 0), "burst of 15 to the transmit FIFO");
+                await_completion(AXISTREAM_VVCT, VvcATx_c, 10 us, "burst of 15 written");
+                T_v      := now - T_v;
+                T2_v     := now;
+                axistream_transmit(AXISTREAM_VVCT, VvcATx_c, owrCountPacket(38, 1), "burst of 39 to the transmit FIFO");
+                await_completion(AXISTREAM_VVCT, VvcATx_c, 10 us, "burst of 39 written");
+                T2_v     := now - T2_v;
+                log(ID_SEQUENCER, "transmit port: 15 beats in " & to_string(T_v / 12 ns) & ", 39 beats in " &
+                    to_string(T2_v / 12 ns) & " UserClk cycles");
+                check_value(T2_v <= (39 + 1) * 12 ns, error, "transmit port: one beat per UserClk cycle");
+                -- Receive port: both packets (54 N-Chars, within the credit of 56) wait in the receive FIFO of B,
+                -- then each is read in one burst
+                CtrlA.LinkStart <= '1';
+                CtrlB.LinkStart <= '1';
+                waitState(0, StateRun_c, 60 us, "A");
+                waitState(1, StateRun_c, 60 us, "B");
+                wait for 20 us;
+                T_v             := now;
+                axistream_expect(AXISTREAM_VVCT, VvcBRx_c, owrCountPacket(14, 0), "burst of 15 from the receive FIFO");
+                await_completion(AXISTREAM_VVCT, VvcBRx_c, 10 us, "burst of 15 read");
+                T_v             := now - T_v;
+                T2_v            := now;
+                axistream_expect(AXISTREAM_VVCT, VvcBRx_c, owrCountPacket(38, 1), "burst of 39 from the receive FIFO");
+                await_completion(AXISTREAM_VVCT, VvcBRx_c, 10 us, "burst of 39 read");
+                T2_v            := now - T2_v;
+                log(ID_SEQUENCER, "receive port: 15 beats in " & to_string(T_v / 12 ns) & ", 39 beats in " &
+                    to_string(T2_v / 12 ns) & " UserClk cycles");
+                check_value(T2_v <= (39 + 1) * 12 ns, error, "receive port: one beat per UserClk cycle");
+
             elsif run("test_ecc_tx") then
                 -- TC-DL-50
                 LinkMode        <= '1';

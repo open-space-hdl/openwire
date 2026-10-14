@@ -144,11 +144,49 @@ discarded. PORT_CTRL.PORT_RESET clears both FIFOs and restarts the link; PORT_CT
 
 ## 7. Performance
 
-| Item | Value (simulation) |
+The rates hold for each direction of the link. R is the data signalling rate on the line in bit/s.
+
+### 7.1 Link
+
+| Item | Value | Evidence |
+| --- | --- | --- |
+| Transmit data signalling rate | R = f(`LinkClk`) / LINK_SPEED.RUN_DIV in the Run state (RUN_DIV = 1 to 255); 10 Mb/s with the initial divider outside Run | TC-EN-01, TC-EN-03 |
+| Receive data signalling rate | The bit period of the far end, reduced by its skew and jitter, is longer than one `LinkClk` period (section 3); verified down to 1.2 `LinkClk` periods | TC-EN-16 |
+| Characters on the line | Data character 10 bits; EOP, EEP and FCT 4 bits; Null 8 bits; time-code, interrupt code and acknowledgement code 14 bits each (ECSS 5.4.3) | TC-EN-02 |
+| Sending order | Broadcast code, FCT, N-Char, Null (ECSS 5.5.6); the characters follow each other without idle bit periods | TC-DL-20, TC-DL-40 |
+| Flow control | One FCT on the line for every 8 N-Chars received from the far end; up to seven FCTs (56 N-Chars) outstanding with a receive FIFO of 64 or more | TC-DL-10, TC-DL-11 |
+
+A packet of n bytes takes n data characters and one end of packet marker on the line. Its user data rate is
+
+```text
+P = 8n / (10n + 4) * (R - Nrx / 2 - 14 * Btx)
+```
+
+with Nrx the N-Chars per second that the port receives from the far end (each costs half a bit of FCT on this line)
+and Btx the broadcast codes per second that the port sends.
+
+| Case | Formula | Value | Simulation |
+| --- | --- | --- | --- |
+| One direction | 8n / (10n + 4) * R | 79.97 Mb/s for n = 1000 at 100 Mb/s | 79.96 Mb/s (TC-DL-40) |
+| Both directions, same n and R | 8n / (10.5n + 4.5) * R | 76.2 Mb/s for n = 1000 at 100 Mb/s | none |
+| A: n = 1000 at 100 Mb/s; B: n = 600 at 62.5 Mb/s, at the same time | P of A and B with each other's Nrx | A 77.7 Mb/s, B 46.1 Mb/s | A 77.7 Mb/s, B 46.1 Mb/s or more (TC-CORE-11) |
+
+### 7.2 Packet ports
+
+| Port | Rate | Bytes per beat | Overhead per packet | Evidence |
+| --- | --- | --- | --- | --- |
+| `S_Pkt` | One beat per `UserClk` cycle while the transmit FIFO has room | One byte in a beat with `TLast` = '0'; the marker beat carries none | One beat (the end of packet marker) | TC-DL-43 |
+| `M_Pkt` | One beat per `UserClk` cycle while the receive FIFO holds N-Chars | One byte in a beat with `TLast` = '0'; the marker beat carries none | One beat (the end of packet marker) | TC-DL-43 |
+
+The core passes the bytes of a packet unchanged: n bytes are n + 1 beats at the packet ports of both ends. Over time
+a packet port carries at most the rate of the link; to keep up with it, `UserClk` needs at least R / 10 cycles per
+second, one cycle per N-Char of 10 bit periods.
+
+### 7.3 Latency
+
+| Item | Value |
 | --- | --- |
-| User data rate, packets of 1000 bytes, traffic in both directions | 97 % of the data character rate (77.7 Mb/s at 100 Mb/s) |
-| Credit | Seven FCTs (56 N-Chars) with a receive FIFO of 64 |
-| Latency of a received character | Two bits after its last bit (parity check of the next character) plus the FIFO crossing |
+| Received character | Passed two bit periods after its last bit (parity check of the next character), plus the crossing of the receive FIFO |
 
 ## 8. Integration constraints
 
