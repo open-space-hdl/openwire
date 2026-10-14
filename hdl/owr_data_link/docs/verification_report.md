@@ -6,7 +6,7 @@ Run on 2026-10-14 with GHDL 6.0.0 (mcode), VUnit 5.0.0.dev7, UVVM 2026.03.20: `p
 
 | Testbench | Tests | Passed |
 | --- | --- | --- |
-| `owr_data_link_tb` | 20 | 20 |
+| `owr_data_link_tb` | 21 (20 in the default configuration, TC-DL-44 in `fifos_min`) | 21 |
 
 QuestaSim (Questa Pro Microchip Edition 2024.3) on 2026-10-14, complete regression without code coverage
 (`python run.py --questa -p 1`): all 19 tests pass. TC-DL-43, added afterwards, passes in QuestaSim without and with
@@ -14,7 +14,7 @@ code coverage with the same cycle counts as in GHDL.
 
 ## 2. Summary
 
-All 20 test cases pass; every requirement of the specification is covered (see the verification plan). VSG reports
+All 21 test cases pass; every requirement of the specification is covered (see the verification plan). VSG reports
 no errors and no warnings.
 
 Measured values:
@@ -24,6 +24,7 @@ Measured values:
 | ErrorReset, ErrorWait, Started and Connecting timers | 6.4 us and 12.8 us within the ranges of ECSS 5.5.7.1c, d |
 | FCTs sent in Connecting with a receive FIFO of 64 | 7 |
 | User data throughput at 100 Mb/s, packets of 1000 bytes | 79.96 Mb/s (99.9 % of the 80 Mb/s of 10-bit data characters) |
+| FIFOs of the minimum depths (transmit 2, receive 16) | One FCT per port (receive credit 8), 30 packets in each direction without credit error (TC-DL-44) |
 | Rate of the packet ports, `UserClk` 83.3 MHz | 39 beats in 39 cycles on the transmit port of A and on the receive port of B (one beat per cycle); the first burst of 15 beats on the transmit port takes 19 cycles, including the start-up of the VVC |
 
 Findings:

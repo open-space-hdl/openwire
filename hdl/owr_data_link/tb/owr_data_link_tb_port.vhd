@@ -18,6 +18,9 @@ library ieee;
     use ieee.std_logic_1164.all;
     use ieee.numeric_std.all;
 
+library olo;
+    use olo.olo_base_pkg_math.all;
+
 library work;
     use work.owr_pkg.all;
     use work.owr_tb_ds_pkg.all;
@@ -81,8 +84,8 @@ architecture sim of owr_data_link_tb_port is
     signal Cause     : ErrCause_t;
     signal TxCredit  : std_logic_vector(5 downto 0);
     signal RxCredit  : std_logic_vector(5 downto 0);
-    signal TxLevel   : std_logic_vector(6 downto 0);
-    signal RxLevel   : std_logic_vector(6 downto 0);
+    signal TxLevel   : std_logic_vector(log2ceil(TxFifoDepth_g + 1) - 1 downto 0);
+    signal RxLevel   : std_logic_vector(log2ceil(RxFifoDepth_g + 1) - 1 downto 0);
     signal Spill     : std_logic;
     signal CreditErr : std_logic;
     signal Overflow  : std_logic;

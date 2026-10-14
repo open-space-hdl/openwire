@@ -2,15 +2,15 @@
 
 ## 1. Test results
 
-Run on 2026-10-12 with GHDL 6.0.0 (mcode), VUnit 5.0.0.dev7, UVVM 2026.03.20: `python run.py "*owr_network*"`.
+Run on 2026-10-14 with GHDL 6.0.0 (mcode), VUnit 5.0.0.dev7, UVVM 2026.03.20: `python run.py "*owr_network*"`.
 
 | Testbench | Tests | Passed |
 | --- | --- | --- |
-| `owr_network_tb` | 13 | 13 |
+| `owr_network_tb` | 15 (12 in the default configuration; TC-NI-11 in `no_services`, `time_codes_only`, `interrupts_only`) | 15 |
 
 ## 2. Summary
 
-All 13 test cases pass; every requirement of the specification is covered (see the verification plan). VSG reports
+All 15 test cases pass; every requirement of the specification is covered (see the verification plan). VSG reports
 no errors and no warnings. The minimum interval of 5 ticks of 100 ns was measured as 500 ns to 600 ns plus the
 request latency.
 
