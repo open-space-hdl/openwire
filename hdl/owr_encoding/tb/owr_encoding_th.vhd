@@ -29,6 +29,9 @@ library work;
 -- Entity
 ---------------------------------------------------------------------------------------------------
 entity owr_encoding_th is
+    generic (
+        SyncStages_g : positive range 2 to 4 := 2
+    );
     port (
         Clk           : out   std_logic;
         Rst           : in    std_logic;
@@ -121,7 +124,8 @@ begin
 
     i_dut : entity work.owr_encoding
         generic map (
-            ClkFreq_g => 100.0e6
+            ClkFreq_g    => 100.0e6,
+            SyncStages_g => SyncStages_g
         )
         port map (
             Clk           => Clk_i,

@@ -29,9 +29,11 @@ library work;
 ---------------------------------------------------------------------------------------------------
 entity owr_data_link_tb_port is
     generic (
-        TxVvcIdx_g : natural;
-        RxVvcIdx_g : natural;
-        BcLogIdx_g : natural
+        TxVvcIdx_g    : natural;
+        RxVvcIdx_g    : natural;
+        BcLogIdx_g    : natural;
+        TxFifoDepth_g : positive := 64;
+        RxFifoDepth_g : positive := 64
     );
     port (
         LinkClk  : in    std_logic;
@@ -123,8 +125,8 @@ begin
     i_data_link : entity work.owr_data_link
         generic map (
             ClkFreq_g     => 100.0e6,
-            TxFifoDepth_g => 64,
-            RxFifoDepth_g => 64
+            TxFifoDepth_g => TxFifoDepth_g,
+            RxFifoDepth_g => RxFifoDepth_g
         )
         port map (
             Clk              => LinkClk,

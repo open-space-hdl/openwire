@@ -2,8 +2,9 @@
 
 This guide describes how to integrate the OpenWire core `owr_core` into an FPGA design: sources, generics, clocks,
 interfaces, the connection to the line drivers and receivers, the protection scope, the programming sequence, the
-performance, the integration constraints and the conformance to the standard. The architecture is described in
-[architecture.md](architecture.md), the registers in the generated [register map](../hdl/owr_mib/docs/register_map.md).
+performance, the integration constraints, the conformance to the standard and the corrected defects. The architecture
+is described in [architecture.md](architecture.md), the registers in the generated
+[register map](../hdl/owr_mib/docs/register_map.md).
 
 ## 1. Sources
 
@@ -17,15 +18,19 @@ the clock constraints for AMD Vivado.
 
 ## 2. Generics
 
-| Generic | Default | Description |
-| --- | --- | --- |
-| `LinkClkFreq_g` | 100.0e6 | Frequency of `LinkClk` in Hz. Elaboration fails when 10 Mb/s +/- 10 % cannot be reached with an integer divider (the frequency must lie within 10 % of a multiple of 10 MHz) or when the disconnect time of 727 ns to 1 us cannot be met |
-| `TxFifoDepth_g`, `RxFifoDepth_g` | 64 | Depths of the transmit and receive FIFOs in N-Chars (powers of 2). A receive FIFO of 64 or more allows seven outstanding FCTs (56 N-Chars) |
-| `TimeCodes_g`, `Interrupts_g` | true | Time-code service and distributed interrupt service |
-| `IntTimerWidth_g` | 16 | Width of the minimum interval and acknowledgement delay of the interrupt service, in ticks |
-| `LinkDisabled_g`, `LinkStart_g`, `AutoStart_g` | false | Reset values of LinkDisabled, LinkStart and AutoStart: a port with `LinkStart_g` or `AutoStart_g` starts the link without software |
-| `RunDiv_g` | 1 | Reset value of the bit period in the Run state in `LinkClk` cycles |
-| `SyncStages_g` | 2 | Synchroniser stages of data and strobe |
+| Generic | Default | Range | Description |
+| --- | --- | --- | --- |
+| `LinkClkFreq_g` | 100.0e6 | 18 to 22 MHz, 27 to 33 MHz, 36 to 44 MHz, 45 to 2554 MHz | Frequency of `LinkClk` in Hz. The range follows from 10 Mb/s +/- 10 % with an integer divider, from the receiver, which samples the initial rate of the far end (at most 11 Mb/s) with at least 1.2 `LinkClk` periods per bit, and from the 8-bit field LINK_SPEED.INIT_DIV. Elaboration stops outside it |
+| `TxFifoDepth_g` | 64 | Powers of 2, 2 to 32768 | Depth of the transmit FIFO in N-Chars. Elaboration stops outside the range |
+| `RxFifoDepth_g` | 64 | Powers of 2, 16 to 32768 | Depth of the receive FIFO in N-Chars: room for the eight N-Chars of an FCT and the reserved place of an EEP. 64 or more allows seven outstanding FCTs (56 N-Chars). Elaboration stops outside the range |
+| `TimeCodes_g`, `Interrupts_g` | true | boolean | Time-code service and distributed interrupt service, in any combination |
+| `IntTimerWidth_g` | 16 | 1 to 30 | Width of the minimum interval and acknowledgement delay of the interrupt service, in ticks |
+| `LinkDisabled_g`, `LinkStart_g`, `AutoStart_g` | false | boolean | Reset values of LinkDisabled, LinkStart and AutoStart: a port with `LinkStart_g` or `AutoStart_g` starts the link without software |
+| `RunDiv_g` | 1 | 1 to 255 | Reset value of the bit period in the Run state in `LinkClk` cycles |
+| `SyncStages_g` | 2 | 2 to 4 | Synchroniser stages of data and strobe |
+
+Every value of a boolean generic is simulated, and the bounds of every range are elaborated and synthesised; the
+[verification report of `owr_core`](../hdl/owr_core/docs/verification_report.md) lists the values.
 
 ## 3. Clocks and reset
 
@@ -193,7 +198,7 @@ second, one cycle per N-Char of 10 bit periods.
 | Constraint | Reason |
 | --- | --- |
 | `LinkClkFreq_g` equals the frequency of `LinkClk` | The initial data signalling rate, the disconnect time, the 6.4 us and 12.8 us timers of the link state machine and the interrupt tick are derived from it (ECSS 5.4.8, 5.4.10, 5.5.7) |
-| `LinkClk` lies within 10 % of a multiple of 10 MHz and is fast enough for the disconnect time; elaboration fails otherwise | 10 Mb/s +/- 10 % from an integer divider (ECSS 5.4.10), disconnect after 727 ns to 1 us (ECSS 5.4.8) |
+| `LinkClkFreq_g` lies in 18 to 22 MHz, 27 to 33 MHz, 36 to 44 MHz or 45 to 2554 MHz; elaboration stops otherwise | 10 Mb/s +/- 10 % from an integer divider (ECSS 5.4.10); reception of the initial rate of the far end with 1.2 `LinkClk` periods per bit; the 8-bit field LINK_SPEED.INIT_DIV (section 2) |
 | The bit period of the far end, reduced by its skew and jitter, is longer than one `LinkClk` period; LINK_SPEED.RUN_DIV is set so that the port does not send faster than the far end can receive | The receiver samples data and strobe once per `LinkClk` period (section 3); SpaceWire has no negotiation of the data signalling rate |
 | LVDS output buffers for data and strobe (TIA-644-A), or LVTTL inside a unit | ECSS 5.3.6.2, 5.3.6.3; the core contains no I/O buffer |
 | LVDS input buffers with fail-safe biasing for data and strobe | ECSS 5.3.6.2.5: an unpowered driver, an open or a shorted line must not produce edges at the receiver output |
@@ -225,7 +230,15 @@ states the behaviour of the core.
 | Not implemented | 5.5.7.8 | Alternative behaviour when LinkDisabled is asserted: a permission for devices of the previous issue of the standard |
 | Not implemented | 5.6.4.6, 5.6.4.7, 5.6.5.5, 5.6.5.7, 5.6.8, 5.6.9 | Routing switch: time-code and interrupt relaying, routing, management parameters of a routing switch |
 
-## 10. Verification and checks
+## 10. Corrected defects
+
+| Defect | Affected | Effect | Correction |
+| --- | --- | --- | --- |
+| `RxFifoDepth_g` below 16 and FIFO depths above 32768 were accepted | All versions before the generic range checks | With `RxFifoDepth_g` = 8 the port never sends an FCT, so the far end never sends data to it; with a depth of 65536 the 16-bit fields FIFO_DEPTHS and FIFO_LEVELS read the depth and a full FIFO as 0 | The elaboration stops outside `RxFifoDepth_g` 16 to 32768 and `TxFifoDepth_g` 2 to 32768 (section 2) |
+| `LinkClkFreq_g` of 2555 MHz or more was accepted | All versions before the generic range checks | LINK_SPEED.INIT_DIV read 0 for `LinkClkFreq_g` of 2555 MHz or more; no realistic configuration is affected | The elaboration stops at 2555 MHz and above (section 2) |
+| `LinkClkFreq_g` of 9 to 11 MHz was accepted | All versions before the generic range checks | The receiver cannot sample the initial rate of the far end (up to 11 Mb/s), so the link does not start | The elaboration stops below 13.2 MHz (section 2) |
+
+## 11. Verification and checks
 
 ```shell
 python run.py -p 8                  # regression with GHDL

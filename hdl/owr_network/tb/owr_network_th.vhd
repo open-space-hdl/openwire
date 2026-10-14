@@ -24,6 +24,11 @@ library work;
 -- Entity
 ---------------------------------------------------------------------------------------------------
 entity owr_network_th is
+    generic (
+        -- Services of instance 2
+        TimeCodes2_g  : boolean := false;
+        Interrupts2_g : boolean := false
+    );
     port (
         LinkClk : out   std_logic;
         UserClk : out   std_logic;
@@ -67,8 +72,8 @@ begin
 
     i_ni2 : entity work.owr_network_tb_inst
         generic map (
-            TimeCodes_g  => false,
-            Interrupts_g => false,
+            TimeCodes_g  => TimeCodes2_g,
+            Interrupts_g => Interrupts2_g,
             LogTx_g      => LogTx2_c,
             LogInd_g     => LogInd2_c
         )

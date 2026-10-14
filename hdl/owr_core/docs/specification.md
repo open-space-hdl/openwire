@@ -37,12 +37,20 @@ clock domains (MG-4). The line drivers and receivers (LVDS) are instantiated by 
 | CORE-FT-01 | A double error in the transmit FIFO shall reach the far end as an EEP, and the following packets shall be transferred unchanged. | none (P5) |
 | CORE-PF-01 | With packets of 1000 bytes, the user data rate shall be at least 90 % of the data character rate (8 data bits per 10 bits) in each direction, with traffic in both directions. | none |
 
+### 2.4 Configuration
+
+| ID | Requirement | ECSS |
+| --- | --- | --- |
+| CORE-CF-01 | The elaboration shall stop when `RxFifoDepth_g` is below 16 or above 32768, or `TxFifoDepth_g` is below 2 or above 32768: the receive FIFO holds the eight N-Chars of an FCT and the reserved place of an EEP, the registers FIFO_DEPTHS and FIFO_LEVELS hold 16-bit values, and the FIFOs of Open Logic need a depth of at least 2. | 5.5.4l, m, 5.7.5 |
+| CORE-CF-02 | The elaboration shall stop when `LinkClkFreq_g` is below 13.2 MHz, at which the receiver cannot sample the initial data signalling rate of the far end (at most 11 Mb/s) with 1.2 clock periods per bit, when it is 2555 MHz or more, at which the initial divider does not fit LINK_SPEED.INIT_DIV (8 bits), and when it does not give 10 Mb/s +/- 1 Mb/s with an integer divider. | 5.4.10.1a, 5.3.7.2j, 5.7.4 |
+
 ## 3. Configuration parameters
 
 | Generic | Default | Range | Description |
 | --- | --- | --- | --- |
-| `LinkClkFreq_g` | 100.0e6 | 20 MHz to 400 MHz, within 10 % of a multiple of 10 MHz | Frequency of `LinkClk` in Hz |
-| `TxFifoDepth_g`, `RxFifoDepth_g` | 64 | Powers of 2, 16 or more | FIFO depths in N-Chars; 64 or more for seven outstanding FCTs |
+| `LinkClkFreq_g` | 100.0e6 | 18 to 22 MHz, 27 to 33 MHz, 36 to 44 MHz, 45 to 2554 MHz | Frequency of `LinkClk` in Hz (CORE-CF-02) |
+| `TxFifoDepth_g` | 64 | Powers of 2, 2 to 32768 | Transmit FIFO depth in N-Chars (CORE-CF-01) |
+| `RxFifoDepth_g` | 64 | Powers of 2, 16 to 32768 | Receive FIFO depth in N-Chars; 64 or more for seven outstanding FCTs (CORE-CF-01) |
 | `TimeCodes_g`, `Interrupts_g` | true | boolean | Broadcast services |
 | `IntTimerWidth_g` | 16 | 1 to 30 | Width of the interrupt timers in ticks |
 | `LinkDisabled_g`, `LinkStart_g`, `AutoStart_g` | false | boolean | Reset values of the port control |

@@ -13,16 +13,16 @@ the standard" of the module specifications.
 
 | ECSS clause | Title | Owner | Requirements | Test cases | Status |
 | --- | --- | --- | --- | --- | --- |
-| 5.2.1 | Protocol stack | Core | CORE-ST-01 | TC-CORE-01, TC-CORE-05, TC-CORE-06, TC-CORE-12 | Verified |
-| 5.2.2 | Network layer | NI-1 | CORE-ST-01, NI-IF-03, NI-TC-01 | TC-CORE-01, TC-CORE-05, TC-CORE-06, TC-CORE-12, TC-NI-01, TC-NI-11 | Verified |
+| 5.2.1 | Protocol stack | Core | CORE-ST-01 | TC-CORE-01, TC-CORE-05, TC-CORE-06, TC-CORE-12, TC-CORE-15 | Verified |
+| 5.2.2 | Network layer | NI-1 | CORE-ST-01, NI-IF-03, NI-TC-01 | TC-CORE-01, TC-CORE-05, TC-CORE-06, TC-CORE-12, TC-CORE-15, TC-NI-01, TC-NI-11 | Verified |
 | 5.2.3 | Data Link layer | DL-5 | DL-IF-01, DL-IF-03 | TC-DL-01, TC-DL-40, TC-DL-41, TC-DL-43 | Verified |
 | 5.2.4 | Encoding layer | EN-1 | EN-IF-01, EN-IF-02, EN-IF-04 | TC-EN-01, TC-EN-02, TC-EN-10, TC-EN-11 | Verified |
 | 5.2.5 | Physical layer | PH-1 | CORE-IF-04 | TC-CORE-01, TC-CORE-09, TC-CORE-13 | Verified |
 | 5.2.6 | Management Information Base | MG-1 | CORE-IF-03, MG-IF-01, MG-IF-02 | TC-CORE-01, TC-MG-01, TC-MG-02, TC-MG-04 | Verified |
-| 5.2.8 | SpaceWire port architecture | Core | CORE-IF-01, CORE-IF-02, CORE-IF-04, CORE-ST-01, DL-FI-01, DL-IF-01, EN-IF-04 | TC-CORE-01, TC-CORE-02, TC-CORE-03, TC-CORE-04, TC-CORE-05, TC-CORE-06, TC-CORE-09, TC-CORE-12, TC-CORE-13, TC-CORE-14, TC-DL-06, TC-DL-40, TC-DL-41, TC-DL-43, TC-EN-01 | Verified |
+| 5.2.8 | SpaceWire port architecture | Core | CORE-IF-01, CORE-IF-02, CORE-IF-04, CORE-ST-01, DL-FI-01, DL-IF-01, EN-IF-04 | TC-CORE-01, TC-CORE-02, TC-CORE-03, TC-CORE-04, TC-CORE-05, TC-CORE-06, TC-CORE-09, TC-CORE-12, TC-CORE-13, TC-CORE-14, TC-CORE-15, TC-DL-06, TC-DL-40, TC-DL-41, TC-DL-43, TC-DL-44, TC-EN-01 | Verified |
 | 5.3.2 to 5.3.5 | Cables, connectors, cable assemblies, PCB tracks | Out of scope (board and harness) | - | - | Out of scope |
 | 5.3.6 | Line drivers and receivers | PH-1 | CORE-IF-04 | TC-CORE-01, TC-CORE-09, TC-CORE-13 | Interface verified; target hardware |
-| 5.3.7 | Data-Strobe skew | PH-1 | CORE-PH-01, EN-RX-08 | TC-CORE-08, TC-CORE-13, TC-EN-14, TC-EN-16 | Verified |
+| 5.3.7 | Data-Strobe skew | PH-1 | CORE-CF-02, CORE-PH-01, EN-RX-08 | TC-CORE-08, TC-CORE-13, TC-CORE-16, TC-EN-14, TC-EN-16 | Verified |
 | 5.3.8 | Physical layer management parameters | MG-1 | CORE-PH-02, MG-RF-03 | TC-CORE-09, TC-MG-01, TC-MG-02 | Verified |
 | 5.4.2 | Serialisation and de-serialisation | EN-1 (transmit), EN-2 (receive) | DL-IF-04, EN-IF-02, EN-IF-03, EN-RX-01, EN-RX-03, EN-RX-04, EN-RX-07, EN-TX-05 | TC-DL-01, TC-EN-01, TC-EN-02, TC-EN-04, TC-EN-10, TC-EN-11, TC-EN-12, TC-EN-13, TC-EN-15 | Verified |
 | 5.4.3 | Character and control code encoding | EN-1 (encode), EN-2 (decode) | EN-RX-03, EN-TX-01, EN-TX-02, EN-TX-03, EN-TX-04, PKG-01, PKG-02, PKG-04 | TC-EN-02, TC-EN-11, TC-PKG-01, TC-PKG-03 | Verified |
@@ -32,11 +32,11 @@ the standard" of the module specifications.
 | 5.4.7 | Parity error | EN-2 | EN-RX-04 | TC-EN-11, TC-EN-12 | Verified |
 | 5.4.8 | Disconnect | EN-2 | EN-RX-06 | TC-EN-14 | Verified |
 | 5.4.9 | ESC error | EN-2 | EN-RX-05 | TC-EN-13 | Verified |
-| 5.4.10 | Data signalling rate | EN-1 | CORE-PH-01, DL-LS-07, EN-RX-08, EN-TX-08, EN-TX-09, PKG-02 | TC-CORE-08, TC-CORE-13, TC-DL-01, TC-DL-03, TC-DL-05, TC-EN-01, TC-EN-03, TC-EN-14, TC-EN-16, TC-PKG-01 | Verified |
+| 5.4.10 | Data signalling rate | EN-1 | CORE-CF-02, CORE-PH-01, DL-LS-07, EN-RX-08, EN-TX-08, EN-TX-09, PKG-02 | TC-CORE-08, TC-CORE-13, TC-CORE-16, TC-DL-01, TC-DL-03, TC-DL-05, TC-EN-01, TC-EN-03, TC-EN-14, TC-EN-16, TC-PKG-01 | Verified |
 | 5.4.11 | Encoding layer management parameters | MG-1 | EN-TX-08, MG-RF-02 | TC-EN-01, TC-EN-03, TC-MG-01, TC-MG-02 | Verified |
 | 5.5.2 | Data Link layer interfaces | DL-5 (a, b, e), DL-6 (c, d, f, g), DL-3 (h, i) | DL-IF-01, DL-IF-02, DL-IF-03, DL-IF-04, DL-RX-01, EN-IF-01, EN-IF-02 | TC-DL-01, TC-DL-05, TC-DL-21, TC-DL-40, TC-DL-41, TC-DL-43, TC-EN-01, TC-EN-02, TC-EN-10, TC-EN-11 | Verified |
 | 5.5.3 | Data Link layer management interface | DL-3 (a), MG-1 (b) | DL-IF-05, DL-IF-06, MG-RF-01 | TC-DL-01, TC-DL-02, TC-MG-01, TC-MG-02, TC-MG-03, TC-MG-04 | Verified |
-| 5.5.4 | Flow control | DL-4 | DL-FC-01, DL-FC-02, DL-FC-03, DL-FC-04, DL-FC-05 | TC-DL-01, TC-DL-10, TC-DL-11, TC-DL-12, TC-DL-41 | Verified |
+| 5.5.4 | Flow control | DL-4 | CORE-CF-01, DL-FC-01, DL-FC-02, DL-FC-03, DL-FC-04, DL-FC-05 | TC-CORE-16, TC-DL-01, TC-DL-10, TC-DL-11, TC-DL-12, TC-DL-41, TC-DL-44 | Verified |
 | 5.5.5 | Flow control errors | DL-4 | DL-FC-05 | TC-DL-12 | Verified |
 | 5.5.6 | Sending priority | DL-5 | DL-FC-02, DL-TX-01, DL-TX-03 | TC-DL-01, TC-DL-11, TC-DL-20, TC-DL-21, TC-DL-40 | Verified |
 | 5.5.7.1 to 5.5.7.7 | Link initialisation behaviour | DL-3 | DL-FI-02, DL-LS-01, DL-LS-02, DL-LS-03, DL-LS-04, DL-LS-05, DL-LS-06, DL-LS-07, DL-LS-08, DL-RX-01, DL-TX-01, DL-TX-02, DL-TX-03, NI-IN-08 | TC-DL-01, TC-DL-02, TC-DL-03, TC-DL-04, TC-DL-05, TC-DL-06, TC-DL-11, TC-DL-20, TC-DL-21, TC-DL-40, TC-NI-10 | Verified |
@@ -53,7 +53,7 @@ the standard" of the module specifications.
 | 5.6.7 | Node management parameters | MG-1 | MG-RF-05, NI-IF-04 | TC-MG-02, TC-MG-03, TC-MG-04, TC-NI-01 | Verified |
 | 5.6.8, 5.6.9 | Routing, routing switch management parameters | Out of scope (no routing switch) | - | - | Out of scope |
 | 5.6.10 | SpaceWire network | EN-3 (f) | CORE-LB-01, EN-LB-01, MG-RF-04 | TC-CORE-07, TC-EN-17, TC-MG-02 | Verified |
-| 5.7 | Management information base | MG-1 | CORE-IF-03, MG-IF-01, MG-RF-01, MG-RF-02, MG-RF-03, MG-RF-05 | TC-CORE-01, TC-MG-01, TC-MG-02, TC-MG-03, TC-MG-04 | Verified |
+| 5.7 | Management information base | MG-1 | CORE-CF-01, CORE-CF-02, CORE-IF-03, MG-IF-01, MG-RF-01, MG-RF-02, MG-RF-03, MG-RF-05 | TC-CORE-01, TC-CORE-16, TC-MG-01, TC-MG-02, TC-MG-03, TC-MG-04 | Verified |
 | 6.1.1 | Packet service interface | NI-1 | CORE-IF-01, CORE-NI-01 | TC-CORE-02, TC-CORE-05, TC-CORE-13 | Verified |
 | 6.1.2 | Time-code service interface | NI-2 | NI-IF-01, NI-IF-02, NI-TC-02 | TC-NI-01, TC-NI-02, TC-NI-04, TC-NI-12 | Verified |
 | 6.1.3 | Distributed interrupt service interface | NI-3 | NI-IF-01, NI-IF-02, NI-IN-03, NI-IN-04, NI-IN-05, NI-IN-06 | TC-NI-01, TC-NI-02, TC-NI-04, TC-NI-06, TC-NI-07, TC-NI-08, TC-NI-12 | Verified |
@@ -73,11 +73,11 @@ reference included).
 
 | Module | Requirements | Verified by a test case | Without a test case |
 | --- | --- | --- | --- |
-| `owr_core` | 13 | 13 | - |
+| `owr_core` | 15 | 15 | - |
 | `owr_data_link` | 31 | 31 | - |
 | `owr_encoding` | 22 | 22 | - |
 | `owr_mib` | 15 | 15 | - |
 | `owr_network` | 19 | 19 | - |
 | `owr_pkg` | 4 | 4 | - |
 
-Requirements: 104; without a test case: 0; test cases of the plans not run by a testbench: 0.
+Requirements: 106; without a test case: 0; test cases of the plans not run by a testbench: 0.

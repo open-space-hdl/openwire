@@ -27,6 +27,10 @@ library work;
 -- Entity
 ---------------------------------------------------------------------------------------------------
 entity owr_data_link_th is
+    generic (
+        TxFifoDepth_g : positive := 64;
+        RxFifoDepth_g : positive := 64
+    );
     port (
         LinkClk  : out   std_logic;
         UserClk  : out   std_logic;
@@ -71,9 +75,11 @@ begin
 
     i_a : entity work.owr_data_link_tb_port
         generic map (
-            TxVvcIdx_g => VvcATx_c,
-            RxVvcIdx_g => VvcARx_c,
-            BcLogIdx_g => BcLogA_c
+            TxVvcIdx_g    => VvcATx_c,
+            RxVvcIdx_g    => VvcARx_c,
+            BcLogIdx_g    => BcLogA_c,
+            TxFifoDepth_g => TxFifoDepth_g,
+            RxFifoDepth_g => RxFifoDepth_g
         )
         port map (
             LinkClk  => LinkClk_i,
@@ -89,9 +95,11 @@ begin
 
     i_b : entity work.owr_data_link_tb_port
         generic map (
-            TxVvcIdx_g => VvcBTx_c,
-            RxVvcIdx_g => VvcBRx_c,
-            BcLogIdx_g => BcLogB_c
+            TxVvcIdx_g    => VvcBTx_c,
+            RxVvcIdx_g    => VvcBRx_c,
+            BcLogIdx_g    => BcLogB_c,
+            TxFifoDepth_g => TxFifoDepth_g,
+            RxFifoDepth_g => RxFifoDepth_g
         )
         port map (
             LinkClk  => LinkClk_i,

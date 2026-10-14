@@ -36,7 +36,10 @@ library work;
 ---------------------------------------------------------------------------------------------------
 entity owr_network_tb is
     generic (
-        runner_cfg : string
+        runner_cfg    : string;
+        -- Services of instance 2
+        TimeCodes2_g  : boolean := false;
+        Interrupts2_g : boolean := false
     );
 end entity;
 
@@ -527,13 +530,28 @@ begin
                 checkLog(LogTx1_c, 1, intCode(2), "interval cleared by port reset");
 
             elsif run("test_disabled_services") then
-                -- TC-NI-11
+                -- TC-NI-11 (configurations of instance 2: no service, time-codes only, interrupts only)
+                Cnt_v := 0;
+                if TimeCodes2_g then
+                    Cnt_v := Cnt_v + 1;
+                end if;
+                if Interrupts2_g then
+                    Cnt_v := Cnt_v + 1;
+                end if;
                 rxCode(2, tcCode(1));
                 rxCode(2, intCode(1));
                 rxCode(2, ackCode(1));
                 wait for 300 ns;
-                check_value(NiOut2.CntIgnored, 3, error, "codes of disabled services ignored");
-                check_value(FarEnd_v.rxCount(LogInd2_c), 0, error, "no indication");
+                -- Without the interrupt service the acknowledgement is a code of a disabled service, with it a
+                -- received acknowledgement in interrupt mode: ignored in both cases
+                check_value(NiOut2.CntIgnored, 3 - Cnt_v, error, "codes of disabled services ignored");
+                check_value(FarEnd_v.rxCount(LogInd2_c), Cnt_v, error, "indications of the enabled services");
+                if TimeCodes2_g then
+                    checkLog(LogInd2_c, 0, tcInd(1), "time-code 1 indicated");
+                end if;
+                if Interrupts2_g then
+                    checkLog(LogInd2_c, Cnt_v - 1, intInd(1), "interrupt 1 indicated");
+                end if;
                 wait until rising_edge(LinkClk);
                 NiIn2.MibTcValid  <= '1';
                 NiIn2.MibIntValid <= '1';
@@ -541,8 +559,13 @@ begin
                 NiIn2.MibTcValid  <= '0';
                 NiIn2.MibIntValid <= '0';
                 wait for 300 ns;
-                check_value(FarEnd_v.rxCount(LogTx2_c), 0, error, "requests of disabled services discarded");
-                check_value(NiOut2.CntIntDisc, 1, error, "interrupt request reported");
+                check_value(FarEnd_v.rxCount(LogTx2_c), Cnt_v, error,
+                            "requests of the enabled services sent, of the disabled ones discarded");
+                if Interrupts2_g then
+                    check_value(NiOut2.CntIntDisc, 0, error, "interrupt request sent");
+                else
+                    check_value(NiOut2.CntIntDisc, 1, error, "interrupt request reported");
+                end if;
 
             elsif run("test_ind_overflow") then
                 -- TC-NI-12
@@ -607,6 +630,10 @@ begin
     end process;
 
     i_th : entity work.owr_network_th
+        generic map (
+            TimeCodes2_g  => TimeCodes2_g,
+            Interrupts2_g => Interrupts2_g
+        )
         port map (
             LinkClk => LinkClk,
             UserClk => UserClk,

@@ -34,7 +34,8 @@ library work;
 ---------------------------------------------------------------------------------------------------
 entity owr_encoding_tb is
     generic (
-        runner_cfg : string
+        runner_cfg   : string;
+        SyncStages_g : positive range 2 to 4 := 2
     );
 end entity;
 
@@ -717,6 +718,9 @@ begin
     end process;
 
     i_th : entity work.owr_encoding_th
+        generic map (
+            SyncStages_g => SyncStages_g
+        )
         port map (
             Clk           => Clk,
             Rst           => Rst,

@@ -47,8 +47,13 @@ library work;
 ---------------------------------------------------------------------------------------------------
 entity owr_core_tb is
     generic (
-        runner_cfg  : string;
-        ServicesB_g : boolean := true
+        runner_cfg      : string;
+        -- Broadcast services and reset values of LinkDisabled, LinkStart and AutoStart of core B
+        TimeCodesB_g    : boolean := true;
+        InterruptsB_g   : boolean := true;
+        LinkDisabledB_g : boolean := false;
+        LinkStartB_g    : boolean := false;
+        AutoStartB_g    : boolean := false
     );
 end entity;
 
@@ -599,15 +604,58 @@ begin
                 checkInd(IndA_c, 0, "00000001", "time-code of the far end indicated");
 
             elsif run("test_no_services") then
-                -- TC-CORE-14 (configuration without the broadcast services at B)
-                regCheck(B_c, RegGenerics_c, x"00001000", "B without time-codes and interrupts");
+                -- TC-CORE-14 (configurations of the broadcast services at B: none, time-codes only, interrupts only)
+                Data_v := x"00001000";
+                Cnt_v  := 0;
+                if TimeCodesB_g then
+                    Data_v(0) := '1';
+                    Cnt_v     := Cnt_v + 1;
+                end if;
+                if InterruptsB_g then
+                    Data_v(1) := '1';
+                    Cnt_v     := Cnt_v + 1;
+                end if;
+                regCheck(B_c, RegGenerics_c, Data_v, "GENERICS of B");
                 startLink(2, 2);
                 bcReq(A_c, 0, 1);
                 bcReq(A_c, 1, 3);
                 wait for 3 us;
-                check_value(FarEnd_v.rxCount(IndB_c), 0, error, "no indication at B");
-                regCheckMask(B_c, RegEvents_c, x"00000080", x"00000080", "B: received codes ignored");
-                regCheck(B_c, RegTimeCode_c, x"00000000", "no time-code register at B");
+                check_value(FarEnd_v.rxCount(IndB_c), Cnt_v, error, "indications at B");
+                if TimeCodesB_g then
+                    checkInd(IndB_c, 0, "00000001", "time-code 1 indicated at B");
+                    regCheck(B_c, RegTimeCode_c, x"00000001", "time-code register of B");
+                else
+                    regCheck(B_c, RegTimeCode_c, x"00000000", "no time-code register at B");
+                end if;
+                if InterruptsB_g then
+                    checkInd(IndB_c, Cnt_v - 1, "01000011", "interrupt 3 indicated at B");
+                end if;
+                regCheckMask(B_c, RegEvents_c, x"00000080", x"00000080", "B: received codes of a disabled service ignored");
+
+            elsif run("test_reset_values") then
+                -- TC-CORE-15 (configurations of the reset values of LinkDisabled, LinkStart and AutoStart at B)
+                Data_v := x"00000030";
+                if LinkDisabledB_g then
+                    Data_v(1) := '1';
+                end if;
+                if LinkStartB_g then
+                    Data_v(2) := '1';
+                end if;
+                if AutoStartB_g then
+                    Data_v(3) := '1';
+                end if;
+                regCheck(B_c, RegPortCtrl_c, Data_v, "PORT_CTRL of B after reset");
+                -- The run rate of B is set for the receiver of A; the start of B comes from its reset values
+                regWrite(B_c, RegLinkSpeed_c, x"00000002");
+                regWrite(A_c, RegLinkSpeed_c, x"00000002");
+                regWrite(A_c, RegPortCtrl_c, x"00000034");
+                if LinkDisabledB_g then
+                    wait for 100 us;
+                    regCheckMask(B_c, RegPortStatus_c, x"00000007", x"00000000", "B stays in ErrorReset");
+                    regWrite(B_c, RegPortCtrl_c, x"00000038");
+                end if;
+                waitState(A_c, StateRun_c, 200 us, "core A");
+                waitState(B_c, StateRun_c, 50 us, "core B");
             end if;
 
         end loop;
@@ -617,7 +665,11 @@ begin
 
     i_th : entity work.owr_core_th
         generic map (
-            ServicesB_g => ServicesB_g
+            TimeCodesB_g    => TimeCodesB_g,
+            InterruptsB_g   => InterruptsB_g,
+            LinkDisabledB_g => LinkDisabledB_g,
+            LinkStartB_g    => LinkStartB_g,
+            AutoStartB_g    => AutoStartB_g
         )
         port map (
             Rst      => Rst,

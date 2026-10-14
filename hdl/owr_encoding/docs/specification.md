@@ -72,7 +72,7 @@ All blocks run in `LinkClk`. The data and strobe inputs are asynchronous to `Lin
 
 | Generic | Default | Range | Description |
 | --- | --- | --- | --- |
-| `ClkFreq_g` | 100.0e6 | 20 MHz to 400 MHz | Frequency of `LinkClk` in Hz; must allow 10 Mb/s +/- 10 % with an integer divider |
+| `ClkFreq_g` | 100.0e6 | 18 to 22 MHz, 27 to 33 MHz, 36 to 44 MHz, 45 to 2554 MHz | Frequency of `LinkClk` in Hz: 10 Mb/s +/- 10 % with an integer divider (elaboration stops otherwise); the other bounds are the range of the core (`owr_core` specification, CORE-CF-02) |
 | `SyncStages_g` | 2 | 2 to 4 | Synchroniser stages of the data and strobe inputs |
 
 ## 5. Interpretation of the standard
