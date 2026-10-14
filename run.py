@@ -91,14 +91,17 @@ def add_openwire(vu):
     if shared_tb:
         lib.add_source_files(shared_tb)
     modules = read_component_list()
+    synthesis_sources = []
     for module in modules:
         for sub in ("src", "tb"):
             files = sorted((ROOT / module / sub).glob("*.vhd"))
             if files:
                 added = lib.add_source_files(files)
-                if COVERAGE and sub == "src":
-                    added.add_compile_option("modelsim.vcom_flags", ["+cover=sbcef"])
-    return lib, modules
+                if sub == "src":
+                    synthesis_sources.append(added)
+                    if COVERAGE:
+                        added.add_compile_option("modelsim.vcom_flags", ["+cover=sbcef"])
+    return lib, modules, synthesis_sources
 
 
 def apply_module_configs(lib, modules):
@@ -112,9 +115,12 @@ def apply_module_configs(lib, modules):
             mod.configure(lib)
 
 
-def set_simulator_options(vu):
-    # UVVM uses shared variables of non-protected types; GHDL accepts them with -frelaxed
+def set_simulator_options(vu, synthesis_sources):
+    # UVVM uses shared variables of non-protected types; GHDL accepts them with -frelaxed. The synthesis sources of
+    # OpenWire are analysed as strict VHDL-2008.
     vu.add_compile_option("ghdl.a_flags", ["-frelaxed", "-Wno-hide", "-Wno-shared"])
+    for files in synthesis_sources:
+        files.set_compile_option("ghdl.a_flags", [])
     vu.set_sim_option("ghdl.elab_flags", ["-frelaxed"])
     # Large word arrays in testbench processes exceed the default stack limit of GHDL. Extra simulation flags for
     # debugging, for example a waveform: OWR_GHDL_SIM_FLAGS="--vcd=D:/tmp/wave.vcd --read-wave-opt=D:/tmp/wave.opt"
@@ -158,12 +164,12 @@ def main():
     vu.add_vhdl_builtins()
     add_open_logic(vu)
     add_uvvm(vu)
-    lib, modules = add_openwire(vu)
+    lib, modules, synthesis_sources = add_openwire(vu)
     if COMPILE_ORDER:
         write_compile_order(vu)
         return
     apply_module_configs(lib, modules)
-    set_simulator_options(vu)
+    set_simulator_options(vu, synthesis_sources)
     if COVERAGE:
         vu.set_sim_option("enable_coverage", True)
     vu.main(post_run=merge_coverage)
