@@ -86,6 +86,10 @@ its own unit testbench. `hdl/<module>/README.md` links the four documents and ex
 ## Verification
 
 - VUnit runs every test (`run.py`); UVVM supplies VVCs, BFMs, checks, randomisation and functional coverage.
+- `run.py` gives every GHDL simulation its own copy of the option `ghdl.sim_flags` and stops when a GHDL command does
+  not carry exactly the generics of its configuration: VUnit 5.0.0.dev7 appends the generics of a test to that list in
+  place, and a configuration added after the option was set shares the list with the configuration it was copied
+  from.
 - The harness (`_th`) contains clocks, reset, the DUT and the VVCs, the testbench (`_tb`) contains one
   `if run("<test id>") then` block per test case of the verification plan. The test IDs of the plan and the names
   in `run(...)` are identical.
