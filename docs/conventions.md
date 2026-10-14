@@ -12,7 +12,11 @@ document. This page lists the rules and the few OpenWire-specific additions.
   module and its function (`owr_data_link_flow_control`). Short forms are limited to the common `rx`, `tx`, `pkg`,
   `regs` and `cc` (clock crossing, as in Open Logic) and the term `mib` of the standard. All OpenWire sources are
   compiled into the VHDL library `openwire`; Open Logic is compiled into the library `olo`.
-- Language: VHDL-2008.
+- Language: VHDL-2008. `run.py` analyses the synthesis sources (`hdl/*/src`) as strict VHDL-2008, without the
+  `-frelaxed` option of GHDL that Open Logic, UVVM and the testbenches need.
+- An attribute specification of an entity or an architecture uses a literal value (for example
+  `attribute syn_radhardlevel of rtl : architecture is "none";`): VHDL requires a locally static expression there, so
+  a constant of the Open Logic attribute packages is not allowed. Attributes of signals use those constants.
 - Entities with non-trivial state use the two-process pattern of Open Logic: all registers in one `TwoProcess_r`
   record, signals `r` and `r_next`, a combinational process starting with `v := r;` and ending with
   `r_next <= v;`, a sequential process with `r <= r_next;` and the reset override at its end.
