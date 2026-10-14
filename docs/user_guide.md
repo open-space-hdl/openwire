@@ -1,8 +1,8 @@
 # OpenWire User Guide
 
 This guide describes how to integrate the OpenWire core `owr_core` into an FPGA design: sources, generics, clocks,
-interfaces, the connection to the line drivers and receivers, the programming sequence, the performance, the
-integration constraints and the conformance to the standard. The architecture is described in
+interfaces, the connection to the line drivers and receivers, the protection scope, the programming sequence, the
+performance, the integration constraints and the conformance to the standard. The architecture is described in
 [architecture.md](architecture.md), the registers in the generated [register map](../hdl/owr_mib/docs/register_map.md).
 
 ## 1. Sources
@@ -94,23 +94,38 @@ belong to the design that integrates the core; section 8 lists what the target p
 The minimum tolerated separation between edges at the receiver (MinsepIN, ECSS 5.3.7.2j) is one `LinkClk` period plus
 the setup and hold window of the input flip-flops.
 
-## 5. Fault tolerance
+## 5. Protection scope
 
-| Item | Protection | MIB |
+The core is designed for radiation environments together with the triple modular redundancy (TMR) of the synthesis
+tool, like the Open Logic ft entities it is built on. It protects the parts in the first rows itself and relies on
+TMR for all other logic:
+
+| Part | Protection | Indication and test |
 | --- | --- | --- |
-| FIFOs: transmit, receive, broadcast requests, broadcast indications, register requests, register responses (EDAC channels 0 to 5) | SECDED ECC on the buffer RAM: a single error is corrected, a double error is detected and contained | EVENTS.ECC_SEC, EVENTS.ECC_DED, ECC_STATUS, ECC_COUNT |
-| Clock domain crossings, reset input, data and strobe inputs | Triplicated synchronisers of the Open Logic clock crossings (`SyncTmr_g` = true: three synchroniser chains and a majority voter, no voters between the stages) | none |
-| State machines | Recovery state reached through the `when others` branch and the reset; the link state machine and the link error recovery also through the port reset | none |
+| FIFOs: transmit, receive, broadcast requests, broadcast indications, register requests, register responses (EDAC channels 0 to 5) | SECDED ECC of the Open Logic ft entities: a single error is corrected, a double error is detected and contained (see below) | EVENTS.ECC_SEC, EVENTS.ECC_DED, ECC_STATUS, ECC_COUNT, `Irq` through EVENTS_IRQ_EN; error injection through the ECC_INJECT register |
+| Clock domain crossings and reset synchronisers, data and strobe inputs | Triplicated synchronisers (`SyncTmr_g` = true): three synchroniser chains and a majority voter. Their registers carry the Synplify attribute `syn_radhardlevel` = `none`, so the TMR of the synthesis tool adds no voters between the stages. The event crossing `owr_cc_pulse` also triplicates its request, pending and last registers | none |
+| State machines | Recovery state through the `when others` branch and the reset; the link state machine and the link error recovery also through the port reset (PORT_CTRL.PORT_RESET) | none |
+| All other logic: registers of the control and data paths, counters, pointers, pipeline registers | TMR of the synthesis tool (for example `syn_radhardlevel` = `tmr` with Synplify, or the equivalent setting of the tool chain). The core adds no protection of its own for this logic; without TMR, an upset in it is not covered | synthesis report |
 
 A double error is never passed on as valid data: an N-Char read from the transmit FIFO is sent as an EEP and the rest
 of the packet is discarded; an N-Char read from the receive FIFO is delivered as an EEP and the rest of the packet is
 discarded; a broadcast request or indication is discarded; a register request or response is dropped, and the
-read then ends with SLVERR after the read timeout of the AXI4-Lite slave.
+read then ends with SLVERR after the read timeout of the AXI4-Lite slave. ECC_INJECT writes a single or a double
+error into the next word of a FIFO for tests of the software.
 
-The `when others` branches of the state machines are kept by synthesis only when the tool implements the state
-machines safe (for example the attribute or option for safe state machines of the synthesis tool); without it, an
-upset of a state register is cleared by the reset or, for the link, by PORT_CTRL.PORT_RESET. ECC_INJECT writes a
-single or a double error into the next word of a FIFO for tests of the software.
+The integrator:
+
+- enables the TMR of the synthesis tool for the core and the logic around it,
+- checks in the synthesis report that TMR was applied, that the synchroniser chains of the crossings were not
+  triplicated a second time, and that no register-based storage meant to be protected by TMR was inferred as a RAM
+  primitive,
+- requests safe state machines, so that synthesis keeps the `when others` branches (AMD Vivado: property
+  `FSM_SAFE_STATE` = `default_state` on the state registers; Synplify: attribute `syn_encoding` = `safe`),
+- protects the configuration memory of SRAM-based FPGAs by scrubbing; this is part of the FPGA design, not of the
+  core.
+
+The ECC paths are verified in simulation by error injection. Whether the protection as a whole meets the
+requirements of a mission is shown by a radiation test with the core in operation (TRL 5).
 
 ## 6. Programming sequence
 
@@ -146,6 +161,7 @@ discarded. PORT_CTRL.PORT_RESET clears both FIFOs and restarts the link; PORT_CT
 | LVDS input buffers with fail-safe biasing for data and strobe | ECSS 5.3.6.2.5: an unpowered driver, an open or a shorted line must not produce edges at the receiver output |
 | Output flip-flops of `Spw_DOut` and `Spw_SOut` placed in the I/O blocks, matched routing of data and strobe | Small output skew DSskewOUT (ECSS 5.3.7.2g) |
 | `set_false_path` from `Spw_DIn`, `Spw_SIn` and `Rst`; `set_max_delay -datapath_only` with the period of the faster clock between each pair of `LinkClk`, `UserClk` and `MgmtClk` (no asynchronous clock groups) | The inputs and the reset enter synchronisers; every crossing between the clocks is an Open Logic entity with triplicated synchronisers |
+| TMR of the synthesis tool enabled for the core | The core protects its FIFO buffers and synchronisers itself and relies on TMR for all other logic (section 5) |
 | Safe implementation of state machines enabled in the synthesis tool | Keeps the `when others` recovery of the state machines (section 5) |
 | INT_HOLDOFF and INT_ACK_DELAY set for the network before distributed interrupts are used | Both are zero after reset and depend on the propagation through the network (ECSS 5.6.5.4c, d, 5.6.5.6e; section 4.2) |
 | `M_Pkt_*` is served | The port gives credit only for free places of the receive FIFO (ECSS 5.5.4): a receive port that is not served stops the traffic of the far end on this link |

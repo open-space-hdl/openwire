@@ -112,7 +112,7 @@ Three properties of the standard shape the architecture more than any single fea
 
 | Driver | Consequence |
 | --- | --- |
-| Use in space: single event upsets in RAMs, registers and clock domain crossings | SECDED ECC on every FIFO, TMR synchronisers on every crossing and on the reset, data and strobe inputs, state machines with a recovery state, an EDAC monitor in the MIB (P5) |
+| Use in space: single event upsets in RAMs, registers and clock domain crossings | SECDED ECC on every FIFO, TMR synchronisers on every crossing and on the reset, data and strobe inputs, state machines with a recovery state, an EDAC monitor in the MIB, the TMR of the synthesis tool for all other logic (P5) |
 | Technology independence | A sampling receiver and an integer bit-rate divider in the port clock domain; no vendor primitive (P10) |
 | Integration | AXI4-Stream user ports, one AXI4-Lite register file, independent user and management clocks (P7) |
 | Verifiability | Every block is verified through its ports, with an independent character-level model of the far end (P8, section 9) |
@@ -138,7 +138,7 @@ Three properties of the standard shape the architecture more than any single fea
 | P2 | Streams everywhere | Every data path between blocks is a valid / ready stream (Open Logic AXI4-Stream conventions) or, where the receiver can never be slower than the source, a valid-only stream of events. |
 | P3 | Few clock domains, proven crossings | Three domains (section 6). Every crossing is built from Open Logic entities with triplicated synchronisers (`SyncTmr_g` = true): `olo_ft_fifo_async` for data, `olo_base_cc_bits` for levels, `owr_cc_pulse` (a handshake over `olo_base_cc_bits`) for events, `olo_base_cc_reset` for coupled resets, `olo_base_reset_gen` for the reset input, `olo_intf_sync` for the asynchronous data and strobe inputs. |
 | P4 | Explicit state semantics | An ECSS "received" condition is a one-cycle event from the block that decodes it. Every state register has a specified reset value. Resets are synchronous and high-active inside every block; `olo_base_reset_gen` brings the reset into each domain. Port reset is a synchronous command. |
-| P5 | Fault tolerance by construction | All FIFOs are `olo_ft_fifo_*` (SECDED ECC), the synchronisers of all crossings are triplicated. State machines have a defined recovery state (D8). ECC events are counted in the MIB; a double error is contained (EEP or discarded code) and never passed on as valid data. |
+| P5 | Fault tolerance by construction | All FIFOs are `olo_ft_fifo_*` (SECDED ECC), the synchronisers of all crossings are triplicated. State machines have a defined recovery state (D8). ECC events are counted in the MIB; a double error is contained (EEP or discarded code) and never passed on as valid data. All other logic relies on the TMR of the synthesis tool ([user guide, section 5](user_guide.md#5-protection-scope)). |
 | P6 | Optional by generics | Time-codes and distributed interrupts are generics (ECSS 5.6.4.1a, 5.6.5.1a); a disabled feature is removed at elaboration and its received codes are ignored. |
 | P7 | One management interface | All management parameters of ECSS 5.7 live in one register file behind one AXI4-Lite port, generated from a single register description (VHDL package, documentation, C header). |
 | P8 | Verifiable in isolation | Each block has a specification and a unit testbench that drives only its ports. Layer and core benches connect real blocks; the far end of the link is a character-level model written independently of the RTL. |
@@ -170,7 +170,7 @@ The FIFOs on the clock domain boundaries (dashed lines) are the only data crossi
 | D5 | The transmit FIFO and the receive FIFO of ECSS 5.2.8 are the crossings between `UserClk` and `LinkClk` | One buffer and one crossing per direction |
 | D6 | The register file is in `LinkClk`; the AXI4-Lite slave in `MgmtClk` forwards every access through one FT FIFO and receives the read data through a second one | All MIB semantics (sticky flags, counters, commands) are in the domain of the protocol; a read always returns the current value and follows every earlier write; a write completes on the AXI4-Lite side without waiting for `LinkClk`, and consecutive accesses queue in the request FIFO in their order |
 | D7 | The Network layer functions of the node (time-code register, interrupt registers and timers, broadcast code priority) are in `LinkClk`; requests and indications of the user ports cross through one FT FIFO per direction | The priority of ECSS 5.6.3d acts on pending codes in the domain of the Data Link layer; one crossing per direction |
-| D8 | The protocol state machines have a defined recovery state, without TMR: the `when others` branch leads to it from an illegal state where the synthesis tool implements the state machine safe, and the reset input and the port reset restart it from any state | TMR stays where Open Logic provides it (the synchronisers of the crossings); a state machine recovers through its recovery state and the link protocol |
+| D8 | The protocol state machines have a defined recovery state: the `when others` branch leads to it from an illegal state where the synthesis tool implements the state machine safe, and the reset input and the port reset restart it from any state | The core adds no TMR of its own to the state machines; their registers rely on the TMR of the synthesis tool like all other logic (P5), and a state machine that reaches an illegal state recovers through its recovery state and the link protocol |
 | D9 | A double error read from a FIFO is contained: an N-Char becomes an EEP followed by the discard of the rest of the packet, a broadcast request or indication is discarded, a register access or response is dropped (the read then ends with SLVERR after the read timeout) | Corrupted data is never passed on as valid (P5) |
 
 ### Clock domains
@@ -299,7 +299,7 @@ jitter of the transmitter and the cable assembly.
 | Gap | Resolution in this architecture |
 | --- | --- |
 | No SpaceWire codec | EN-1 and EN-2 are custom blocks |
-| No TMR helper for protocol state machines | Recovery state of every state machine (D8) |
+| No TMR helper for protocol state machines | TMR of the synthesis tool for their registers (P5) and a recovery state in every state machine (D8) |
 | `olo_base_cc_pulse` requires the pulses of one bit to be at least two cycles of the slower clock apart and does not store a pulse that arrives during a transfer | `owr_cc_pulse`: two-phase handshake over `olo_base_cc_bits` that stores a pending pulse, with triplicated registers |
 
 ## 9 Verification architecture
