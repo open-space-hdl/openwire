@@ -9,6 +9,9 @@ complete regression of `run.py`, the same test set that GHDL runs in CI:
 python run.py --questa --coverage -p 1
 ```
 
+The coverage options reduce the optimisation of the simulator. The regression therefore also runs in QuestaSim without
+them (`python run.py --questa -p 1`); every test passes in both runs.
+
 The sources of `hdl/<module>/src` are compiled with `+cover=sbcef`: statements, branches, conditions, expressions
 (focused expression coverage) and state machines. Open Logic, UVVM and the testbenches are not instrumented; Open Logic
 is verified by its own regression. `run.py` merges the coverage of all tests into `coverage/coverage.ucdb` and writes
@@ -29,8 +32,8 @@ Closure rules:
 
 ## 2. Result
 
-Run on 2026-10-12: 84 tests, all passed, 14 minutes in one simulator process. Numbers are covered/total bins per
-file; bold marks a metric with misses.
+Run on 2026-10-14: 84 tests, all passed, 14 minutes in one simulator process; without code coverage the same 84 tests
+pass. Numbers are covered/total bins per file; bold marks a metric with misses.
 
 | File | Statements | Branches | FSM States | FSM Transitions | Conditions | Expressions |
 | --- | --- | --- | --- | --- | --- | --- |

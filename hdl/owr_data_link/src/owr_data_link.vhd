@@ -117,6 +117,7 @@ architecture rtl of owr_data_link is
     signal RxFifoValid : std_logic;
     signal RxFifoReady : std_logic;
     signal RxLevel     : std_logic_vector(log2ceil(RxFifoDepth_g + 1) - 1 downto 0);
+    signal RxLevelNat  : natural range 0 to RxFifoDepth_g;
     signal RxOutData   : NChar_t;
     signal RxOutDed    : std_logic;
     signal RxOutSec    : std_logic;
@@ -273,6 +274,9 @@ begin
     -----------------------------------------------------------------------------------------------
     -- DL-4 Flow control manager
     -----------------------------------------------------------------------------------------------
+    -- A signal, not an expression, as the actual of the integer port (docs/conventions.md)
+    RxLevelNat <= to_integer(unsigned(RxLevel));
+
     i_flow_control : entity work.owr_data_link_flow_control
         generic map (
             RxFifoDepth_g => RxFifoDepth_g
@@ -285,7 +289,7 @@ begin
             RxChar_Kind   => RxChar_Kind,
             Tx_FctSent    => SentFct,
             Tx_NCharSent  => SentNChar,
-            RxFifo_Level  => to_integer(unsigned(RxLevel)),
+            RxFifo_Level  => RxLevelNat,
             Rx_EepPending => EepPending,
             FctRequest    => FctRequest,
             TxCreditAvail => TxCreditAv,
