@@ -8,6 +8,9 @@ Run on 2026-10-12 with GHDL 6.0.0 (mcode), VUnit 5.0.0.dev7, UVVM 2026.03.20: `p
 | --- | --- | --- |
 | `owr_data_link_tb` | 19 | 19 |
 
+QuestaSim (Questa Pro Microchip Edition 2024.3) on 2026-10-14, complete regression without code coverage
+(`python run.py --questa -p 1`): all 19 tests pass.
+
 ## 2. Summary
 
 All 19 test cases pass; every requirement of the specification is covered (see the verification plan). VSG reports
@@ -27,6 +30,7 @@ Findings:
 | --- | --- |
 | The receive credit counter overflowed its range in a delta cycle of the simulation (stale FCT-sent event with the new credit) | Increment limited to 56; FCTs are only requested up to 48, so the limit never acts in a clock cycle |
 | After a parity error the last data character before the error is not passed | Correct: its data bits are covered by the failing parity bit (ECSS 5.4.3.4b); the receiver passes only confirmed characters, the EEP follows the confirmed ones |
+| QuestaSim with full optimisation (without code coverage) stopped at the first N-Char written to the receive FIFO: "Value 1 is out of range 0 to 0" in the implicit signal of the actual `to_integer(unsigned(RxLevel))` of the port `RxFifo_Level` (`natural range 0 to 64`) of the flow control manager. GHDL and QuestaSim with code coverage were not affected | The actual is the explicit signal `RxLevelNat` of the subtype of the port (rule in [conventions.md](../../../docs/conventions.md)); the hardware is unchanged. QuestaSim without code coverage passes all tests |
 
 Observations:
 

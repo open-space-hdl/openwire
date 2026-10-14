@@ -191,6 +191,7 @@ states the behaviour of the core.
 
 ```shell
 python run.py -p 8                  # regression with GHDL
+python run.py --questa -p 1             # regression with QuestaSim, full optimisation
 python run.py --questa --coverage -p 1  # regression with QuestaSim and code coverage (coverage.md)
 python lint/lint.py                 # VSG
 python run.py --compile-order       # compile_order.txt of the synthesis sources

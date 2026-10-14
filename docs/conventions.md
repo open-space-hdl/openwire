@@ -17,6 +17,11 @@ document. This page lists the rules and the few OpenWire-specific additions.
 - An attribute specification of an entity or an architecture uses a literal value (for example
   `attribute syn_radhardlevel of rtl : architecture is "none";`): VHDL requires a locally static expression there, so
   a constant of the Open Logic attribute packages is not allowed. Attributes of signals use those constants.
+- A port of a constrained subtype (for example `natural range 0 to Depth_g`) gets a signal as its actual, not an
+  expression such as `to_integer(...)`; an explicit signal of the port's subtype carries the value. QuestaSim with full
+  optimisation gave the implicit signal of such an expression the range 0 to 0, which is neither the subtype of the
+  port nor that of the expression, and stopped the simulation. Expressions on ports of an unconstrained
+  `std_logic_vector` subtype are allowed.
 - Entities with non-trivial state use the two-process pattern of Open Logic: all registers in one `TwoProcess_r`
   record, signals `r` and `r_next`, a combinational process starting with `v := r;` and ending with
   `r_next <= v;`, a sequential process with `r <= r_next;` and the reset override at its end.
@@ -88,7 +93,9 @@ its own unit testbench. `hdl/<module>/README.md` links the four documents and ex
   (`owr_tb_pkg.owrTestEnd`).
 - Tests observe ports and management interfaces only, never internal signals.
 - GHDL is the default simulator; QuestaSim (`python run.py --questa`) is used for code coverage
-  ([coverage.md](coverage.md)). Every test passes in both simulators.
+  ([coverage.md](coverage.md)). Every test passes in GHDL and in QuestaSim, in QuestaSim both with code coverage
+  (`--coverage`) and without it: the coverage options reduce the optimisation of the simulator, so only the run
+  without them shows the behaviour of a fully optimised simulation.
 - A side effect is never obtained by calling an impure function and discarding its result: QuestaSim may remove such
   a call. Protected types offer a procedure for it (for example `txDrop` of the far-end model).
 - The far end of a link is the behavioural Data-Strobe model of `tb/` (character encoder and decoder in continuous
