@@ -96,6 +96,8 @@ its own unit testbench. `hdl/<module>/README.md` links the four documents and ex
 - A test passes only when UVVM reports no unexpected alerts and every expected alert occurred
   (`owr_tb_pkg.owrTestEnd`).
 - Tests observe ports and management interfaces only, never internal signals.
+- Packets longer than the 16 KiB of one AXI4-Stream VVC command come from the generator of `owr_tb_axis_master` and
+  go into the checker of `owr_tb_axis_slave` (`owr_tb_pkg.OwrLongTx` and `OwrLongRx`), with every byte checked.
 - GHDL is the default simulator; QuestaSim (`python run.py --questa`) is used for code coverage
   ([coverage.md](coverage.md)). Every test passes in GHDL and in QuestaSim, in QuestaSim both with code coverage
   (`--coverage`) and without it: the coverage options reduce the optimisation of the simulator, so only the run

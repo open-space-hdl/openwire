@@ -183,7 +183,9 @@ and Btx the broadcast codes per second that the port sends.
 | `S_Pkt` | One beat per `UserClk` cycle while the transmit FIFO has room | One byte in a beat with `TLast` = '0'; the marker beat carries none | One beat (the end of packet marker) | TC-DL-43 |
 | `M_Pkt` | One beat per `UserClk` cycle while the receive FIFO holds N-Chars | One byte in a beat with `TLast` = '0'; the marker beat carries none | One beat (the end of packet marker) | TC-DL-43 |
 
-The core passes the bytes of a packet unchanged: n bytes are n + 1 beats at the packet ports of both ends. Over time
+The core passes the bytes of a packet unchanged: n bytes are n + 1 beats at the packet ports of both ends. The
+length of a packet is not limited: the FIFOs hold N-Chars, not packets, and nothing counts the bytes of a packet;
+packets of up to 65542 bytes are simulated, also with a link error in the middle (TC-CORE-17, TC-CORE-18). Over time
 a packet port carries at most the rate of the link; to keep up with it, `UserClk` needs at least R / 10 cycles per
 second, one cycle per N-Char of 10 bit periods.
 

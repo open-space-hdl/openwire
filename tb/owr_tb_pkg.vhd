@@ -75,6 +75,36 @@ package owr_tb_pkg is
         first : in natural := 0;
         eep   : in boolean := false) return t_slv_array;
 
+    -- Long packets: the AXI4-Stream VVC carries at most 16 KiB per command, so owr_tb_axis_master generates and
+    -- owr_tb_axis_slave checks a packet of owrCountPacket values of any length itself, while its VVC is idle. The
+    -- arrays are indexed by the VVC instance; the test toggles Start.
+    type OwrLongPkt_t is record
+        Start  : boolean; -- toggled by the test
+        Length : natural; -- data bytes
+        First  : natural; -- value of the first data byte
+        Eep    : boolean; -- end of packet marker: EEP (generator) or expected EEP (checker)
+        Prefix : boolean; -- checker: a prefix of the packet ended by an EEP is accepted
+    end record;
+
+    type OwrLongPktArr_t is array (natural range <>) of OwrLongPkt_t;
+
+    constant OwrLongPktIdle_c : OwrLongPkt_t := (Start => false, Length => 0, First => 0, Eep => false,
+                                                 Prefix => false);
+
+    signal OwrLongTx : OwrLongPktArr_t(0 to 15) := (others => OwrLongPktIdle_c);
+    signal OwrLongRx : OwrLongPktArr_t(0 to 15) := (others => OwrLongPktIdle_c);
+
+    -- Completed packets and data bytes of the last packet per VVC instance, written by the components: every
+    -- element has one writer, the maximum resolves the drivers of the other components
+    function owrMaxInt (values : integer_vector) return integer;
+
+    subtype OwrMaxInt_t is owrMaxInt integer;
+
+    type OwrMaxIntArr_t is array (natural range <>) of OwrMaxInt_t;
+
+    signal OwrLongDone  : OwrMaxIntArr_t(0 to 15) := (others => 0);
+    signal OwrLongBytes : OwrMaxIntArr_t(0 to 15) := (others => 0);
+
 end package;
 
 ---------------------------------------------------------------------------------------------------
@@ -126,6 +156,19 @@ package body owr_tb_pkg is
             Arr_v(n) := x"00";
         end if;
         return Arr_v;
+    end function;
+
+    function owrMaxInt (values : integer_vector) return integer is
+        variable Max_v : integer := 0;
+    begin
+
+        for i in values'range loop
+            if values(i) > Max_v then
+                Max_v := values(i);
+            end if;
+        end loop;
+
+        return Max_v;
     end function;
 
 end package body;

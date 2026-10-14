@@ -6,7 +6,7 @@ Run on 2026-10-14 with GHDL 6.0.0 (mcode), VUnit 5.0.0.dev7, UVVM 2026.03.20: `p
 
 | Testbench | Tests | Passed |
 | --- | --- | --- |
-| `owr_core_tb` | 19 (13 in the default configuration; TC-CORE-14 in `no_services`, `time_codes_only`, `interrupts_only`; TC-CORE-15 in `link_start`, `auto_start`, `link_disabled`) | 19 |
+| `owr_core_tb` | 21 (15 in the default configuration; TC-CORE-14 in `no_services`, `time_codes_only`, `interrupts_only`; TC-CORE-15 in `link_start`, `auto_start`, `link_disabled`) | 21 |
 | `lint/synth_check.py` (TC-CORE-16) | 19 configurations that synthesise, 7 configurations outside the ranges | 26 |
 
 ## 2. Summary

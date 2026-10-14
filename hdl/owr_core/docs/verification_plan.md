@@ -40,6 +40,8 @@ services of core B (`no_services`, `time_codes_only`, `interrupts_only`) and the
 | `test_far_end` (TC-CORE-13) | A against the far-end model: initial bit period 100 ns until Run, seven FCTs, run bit period 40 ns, packets in both directions decoded by the model, time-code of the model indicated | CORE-IF-04, CORE-NI-01, CORE-PH-01 |
 | `test_no_services` (TC-CORE-14) | Configurations `no_services`, `time_codes_only` and `interrupts_only` of B: GENERICS shows the services; the codes of an enabled service are indicated (time-code register of B), the codes of a disabled service are ignored and reported | CORE-IF-02 |
 | `test_reset_values` (TC-CORE-15) | Configurations `link_start`, `auto_start` and `link_disabled` of B: PORT_CTRL after reset shows the reset value; A starts by software, B by its reset value; with LinkDisabled B stays in ErrorReset until software enables it; both in Run | CORE-ST-01, MG-RF-06 |
+| `test_long_packet` (TC-CORE-17) | A packet of 65542 bytes from A to B, every byte and the marker checked, while B sends 20 packets of 1000 bytes to A. The long packets of TC-CORE-17 and TC-CORE-18 come from the generator and checker of `owr_tb_axis_master` and `owr_tb_axis_slave` (the AXI4-Stream VVC carries at most 16 KiB per command) | CORE-NI-01 |
+| `test_long_packet_error` (TC-CORE-18) | Line cut 1 ms into a packet of 65542 bytes: B receives a prefix ended by an EEP, A discards the rest of the packet, the next packet arrives complete | CORE-NI-01, CORE-ST-01 |
 | TC-CORE-16 (`lint/synth_check.py`) | GHDL synthesis of `owr_core` with the defaults, every combination of the broadcast services, the bounds of every numeric generic (FIFO depths 2, 16 and 32768, IntTimerWidth_g 1 and 30, RunDiv_g 255, SyncStages_g 4, LinkClkFreq_g 18, 22, 27, 33, 36, 44, 45 and 2554 MHz) and the reset values; no error, no inferred latch. Configurations outside the ranges (RxFifoDepth_g 8 and 65536, TxFifoDepth_g 1 and 65536, LinkClkFreq_g 11, 25 and 2555 MHz) stop the elaboration with their message | CORE-CF-01, CORE-CF-02 |
 
 ## 4. Requirement coverage
@@ -50,9 +52,9 @@ services of core B (`no_services`, `time_codes_only`, `interrupts_only`) and the
 | CORE-IF-02 | TC-CORE-03, TC-CORE-04, TC-CORE-14 |
 | CORE-IF-03 | TC-CORE-01 |
 | CORE-IF-04 | TC-CORE-01, TC-CORE-09, TC-CORE-13 |
-| CORE-ST-01 | TC-CORE-01, TC-CORE-05, TC-CORE-06, TC-CORE-12, TC-CORE-15 |
+| CORE-ST-01 | TC-CORE-01, TC-CORE-05, TC-CORE-06, TC-CORE-12, TC-CORE-15, TC-CORE-18 |
 | CORE-ST-02 | TC-CORE-01 |
-| CORE-NI-01 | TC-CORE-02, TC-CORE-05, TC-CORE-13 |
+| CORE-NI-01 | TC-CORE-02, TC-CORE-05, TC-CORE-13, TC-CORE-17, TC-CORE-18 |
 | CORE-NI-02 | TC-CORE-01, TC-CORE-02, TC-CORE-03 |
 | CORE-PH-01 | TC-CORE-08, TC-CORE-13 |
 | CORE-PH-02 | TC-CORE-09 |

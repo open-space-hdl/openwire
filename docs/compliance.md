@@ -13,13 +13,13 @@ the standard" of the module specifications.
 
 | ECSS clause | Title | Owner | Requirements | Test cases | Status |
 | --- | --- | --- | --- | --- | --- |
-| 5.2.1 | Protocol stack | Core | CORE-ST-01 | TC-CORE-01, TC-CORE-05, TC-CORE-06, TC-CORE-12, TC-CORE-15 | Verified |
-| 5.2.2 | Network layer | NI-1 | CORE-ST-01, NI-IF-03, NI-TC-01 | TC-CORE-01, TC-CORE-05, TC-CORE-06, TC-CORE-12, TC-CORE-15, TC-NI-01, TC-NI-11 | Verified |
+| 5.2.1 | Protocol stack | Core | CORE-ST-01 | TC-CORE-01, TC-CORE-05, TC-CORE-06, TC-CORE-12, TC-CORE-15, TC-CORE-18 | Verified |
+| 5.2.2 | Network layer | NI-1 | CORE-ST-01, NI-IF-03, NI-TC-01 | TC-CORE-01, TC-CORE-05, TC-CORE-06, TC-CORE-12, TC-CORE-15, TC-CORE-18, TC-NI-01, TC-NI-11 | Verified |
 | 5.2.3 | Data Link layer | DL-5 | DL-IF-01, DL-IF-03 | TC-DL-01, TC-DL-40, TC-DL-41, TC-DL-43 | Verified |
 | 5.2.4 | Encoding layer | EN-1 | EN-IF-01, EN-IF-02, EN-IF-04 | TC-EN-01, TC-EN-02, TC-EN-10, TC-EN-11 | Verified |
 | 5.2.5 | Physical layer | PH-1 | CORE-IF-04 | TC-CORE-01, TC-CORE-09, TC-CORE-13 | Verified |
 | 5.2.6 | Management Information Base | MG-1 | CORE-IF-03, MG-IF-01, MG-IF-02 | TC-CORE-01, TC-MG-01, TC-MG-02, TC-MG-04 | Verified |
-| 5.2.8 | SpaceWire port architecture | Core | CORE-IF-01, CORE-IF-02, CORE-IF-04, CORE-ST-01, DL-FI-01, DL-IF-01, EN-IF-04 | TC-CORE-01, TC-CORE-02, TC-CORE-03, TC-CORE-04, TC-CORE-05, TC-CORE-06, TC-CORE-09, TC-CORE-12, TC-CORE-13, TC-CORE-14, TC-CORE-15, TC-DL-06, TC-DL-40, TC-DL-41, TC-DL-43, TC-DL-44, TC-EN-01 | Verified |
+| 5.2.8 | SpaceWire port architecture | Core | CORE-IF-01, CORE-IF-02, CORE-IF-04, CORE-ST-01, DL-FI-01, DL-IF-01, EN-IF-04 | TC-CORE-01, TC-CORE-02, TC-CORE-03, TC-CORE-04, TC-CORE-05, TC-CORE-06, TC-CORE-09, TC-CORE-12, TC-CORE-13, TC-CORE-14, TC-CORE-15, TC-CORE-18, TC-DL-06, TC-DL-40, TC-DL-41, TC-DL-43, TC-DL-44, TC-EN-01 | Verified |
 | 5.3.2 to 5.3.5 | Cables, connectors, cable assemblies, PCB tracks | Out of scope (board and harness) | - | - | Out of scope |
 | 5.3.6 | Line drivers and receivers | PH-1 | CORE-IF-04 | TC-CORE-01, TC-CORE-09, TC-CORE-13 | Interface verified; target hardware |
 | 5.3.7 | Data-Strobe skew | PH-1 | CORE-CF-02, CORE-PH-01, EN-RX-08 | TC-CORE-08, TC-CORE-13, TC-CORE-16, TC-EN-14, TC-EN-16 | Verified |
@@ -43,7 +43,7 @@ the standard" of the module specifications.
 | 5.5.7.8 | Alternative behaviour when disabled asserted | Not implemented (permission) | - | - | Not implemented (permission) |
 | 5.5.8 | Link error recovery | DL-7 | DL-IF-06, DL-RC-01, DL-RC-02, DL-RX-02, DL-TX-04, MG-RF-01 | TC-DL-01, TC-DL-03, TC-DL-05, TC-DL-06, TC-DL-12, TC-DL-30, TC-DL-31, TC-DL-32, TC-DL-42, TC-MG-01, TC-MG-02, TC-MG-03, TC-MG-04 | Verified |
 | 5.5.9 | Accepting broadcast codes for sending | DL-5 | DL-TX-03 | TC-DL-20, TC-DL-21 | Verified |
-| 5.6.2 | SpaceWire packets | NI-1 | CORE-NI-01 | TC-CORE-02, TC-CORE-05, TC-CORE-13 | Verified |
+| 5.6.2 | SpaceWire packets | NI-1 | CORE-NI-01 | TC-CORE-02, TC-CORE-05, TC-CORE-13, TC-CORE-17, TC-CORE-18 | Verified |
 | 5.6.3 | Broadcast codes | NI-4 | NI-BC-01, NI-BC-02 | TC-NI-04, TC-NI-05 | Verified |
 | 5.6.4.1 to 5.6.4.5, 5.6.4.8, 5.6.4.9 | Time-codes in a node | NI-2 | NI-TC-01, NI-TC-02, NI-TC-03, NI-TC-04 | TC-NI-01, TC-NI-02, TC-NI-03, TC-NI-11 | Verified |
 | 5.6.4.6, 5.6.4.7 | Time-codes in a routing switch | Out of scope (no routing switch) | - | - | Out of scope |
@@ -54,7 +54,7 @@ the standard" of the module specifications.
 | 5.6.8, 5.6.9 | Routing, routing switch management parameters | Out of scope (no routing switch) | - | - | Out of scope |
 | 5.6.10 | SpaceWire network | EN-3 (f) | CORE-LB-01, EN-LB-01, MG-RF-04 | TC-CORE-07, TC-EN-17, TC-MG-02 | Verified |
 | 5.7 | Management information base | MG-1 | CORE-CF-01, CORE-CF-02, CORE-IF-03, MG-IF-01, MG-RF-01, MG-RF-02, MG-RF-03, MG-RF-05 | TC-CORE-01, TC-CORE-16, TC-MG-01, TC-MG-02, TC-MG-03, TC-MG-04 | Verified |
-| 6.1.1 | Packet service interface | NI-1 | CORE-IF-01, CORE-NI-01 | TC-CORE-02, TC-CORE-05, TC-CORE-13 | Verified |
+| 6.1.1 | Packet service interface | NI-1 | CORE-IF-01, CORE-NI-01 | TC-CORE-02, TC-CORE-05, TC-CORE-13, TC-CORE-17, TC-CORE-18 | Verified |
 | 6.1.2 | Time-code service interface | NI-2 | NI-IF-01, NI-IF-02, NI-TC-02 | TC-NI-01, TC-NI-02, TC-NI-04, TC-NI-12 | Verified |
 | 6.1.3 | Distributed interrupt service interface | NI-3 | NI-IF-01, NI-IF-02, NI-IN-03, NI-IN-04, NI-IN-05, NI-IN-06 | TC-NI-01, TC-NI-02, TC-NI-04, TC-NI-06, TC-NI-07, TC-NI-08, TC-NI-12 | Verified |
 | 6.2.1 | N-Char service interface | DL-5 (send), DL-6 (read) | DL-IF-01 | TC-DL-40, TC-DL-41, TC-DL-43 | Verified |

@@ -169,6 +169,33 @@ begin
             waitState(B_c, StateRun_c, 50 us, "core B");
         end procedure;
 
+        -- Long packet of n bytes from the generator of a transmit VVC instance (owr_tb_pkg.OwrLongTx)
+        procedure longTx (
+            idx   : natural;
+            n     : natural;
+            first : natural) is
+        begin
+            OwrLongTx(idx).Length <= n;
+            OwrLongTx(idx).First  <= first;
+            OwrLongTx(idx).Eep    <= false;
+            OwrLongTx(idx).Prefix <= false;
+            OwrLongTx(idx).Start  <= not OwrLongTx(idx).Start;
+        end procedure;
+
+        -- Long packet of n bytes into the checker of a receive VVC instance (owr_tb_pkg.OwrLongRx)
+        procedure longRx (
+            idx    : natural;
+            n      : natural;
+            first  : natural;
+            prefix : boolean) is
+        begin
+            OwrLongRx(idx).Length <= n;
+            OwrLongRx(idx).First  <= first;
+            OwrLongRx(idx).Eep    <= false;
+            OwrLongRx(idx).Prefix <= prefix;
+            OwrLongRx(idx).Start  <= not OwrLongRx(idx).Start;
+        end procedure;
+
         -- Request on a broadcast service port: kind 0 time-code, 1 interrupt, 2 acknowledgement
         procedure bcReq (
             core  : natural;
@@ -656,6 +683,48 @@ begin
                 end if;
                 waitState(A_c, StateRun_c, 200 us, "core A");
                 waitState(B_c, StateRun_c, 50 us, "core B");
+
+            elsif run("test_long_packet") then
+                -- TC-CORE-17: a packet of 65542 bytes (the longest Space Packet with its header) from the generator
+                -- into the checker of the stream components, while B sends packets to A
+                startLink(1, 2);
+                longRx(VvcBRx_c, 65542, 7, false);
+                longTx(VvcATx_c, 65542, 7);
+
+                for i in 0 to 19 loop
+                    axistream_transmit(AXISTREAM_VVCT, VvcBTx_c, owrCountPacket(1000, i), "B to A " & to_string(i));
+                    axistream_expect(AXISTREAM_VVCT, VvcARx_c, owrCountPacket(1000, i), "B to A " & to_string(i));
+                end loop;
+
+                T_v := now;
+                wait until OwrLongDone(VvcBRx_c) = 1 for 20 ms;
+                check_value(OwrLongDone(VvcBRx_c), 1, error, "packet of 65542 bytes received at B");
+                check_value(OwrLongBytes(VvcBRx_c), 65542, error, "data bytes of the packet at B");
+                log(ID_SEQUENCER, "65542 bytes from A to B in " & to_string((now - T_v) / 1 us) & " us");
+                await_completion(AXISTREAM_VVCT, VvcARx_c, 20 ms, "packets from B to A");
+
+            elsif run("test_long_packet_error") then
+                -- TC-CORE-18: line cut 1 ms into a packet of 65542 bytes: B receives a prefix ended by an EEP, A
+                -- discards the rest of the packet, the next packet arrives complete
+                startLink(1, 2);
+                longRx(VvcBRx_c, 65542, 3, true);
+                longTx(VvcATx_c, 65542, 3);
+                wait for 1 ms;
+                Cut <= '1';
+                wait for 2 us;
+                Cut <= '0';
+                waitState(A_c, StateRun_c, 200 us, "A after the cut");
+                waitState(B_c, StateRun_c, 50 us, "B after the cut");
+                wait until OwrLongDone(VvcBRx_c) = 1 for 1 ms;
+                check_value(OwrLongDone(VvcBRx_c), 1, error, "prefix received at B");
+                check_value(OwrLongBytes(VvcBRx_c) > 5000 and OwrLongBytes(VvcBRx_c) < 65542, error,
+                            "prefix of " & to_string(OwrLongBytes(VvcBRx_c)) & " bytes at B");
+                wait until OwrLongDone(VvcATx_c) = 1 for 20 ms;
+                check_value(OwrLongDone(VvcATx_c), 1, error, "rest of the packet written at A");
+                axistream_transmit(AXISTREAM_VVCT, VvcATx_c, owrCountPacket(100, 9), "packet after the long one");
+                axistream_expect(AXISTREAM_VVCT, VvcBRx_c, owrCountPacket(100, 9), "packet after the long one");
+                await_completion(AXISTREAM_VVCT, VvcBRx_c, 1 ms, "packet after the long one");
+                log(ID_SEQUENCER, "prefix of " & to_string(OwrLongBytes(VvcBRx_c)) & " bytes at B, rest discarded at A");
             end if;
 
         end loop;
