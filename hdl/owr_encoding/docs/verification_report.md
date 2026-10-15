@@ -8,6 +8,9 @@ Run on 2026-10-14 with GHDL 6.0.0 (mcode), VUnit 5.0.0.dev7, UVVM 2026.03.20: `p
 | --- | --- | --- |
 | `owr_encoding_tb` | 28 (4 transmit tests; 8 receive tests in `sync_2`, `sync_3` and `sync_4`) | 28 |
 
+QuestaSim (Questa Pro Microchip Edition 2024.3) on 2026-10-16 with Open Logic 4.7.0-ft.6, complete regression without
+code coverage (`python run.py --questa -p 1`) and with it: all 28 tests of `owr_encoding_tb` pass in both runs.
+
 ## 2. Summary
 
 All 28 test cases pass, the receive tests with 2, 3 and 4 synchroniser stages; every requirement of the specification is

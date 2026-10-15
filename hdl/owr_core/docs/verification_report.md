@@ -9,6 +9,9 @@ Run on 2026-10-14 with GHDL 6.0.0 (mcode), VUnit 5.0.0.dev7, UVVM 2026.03.20: `p
 | `owr_core_tb` | 21 (15 in the default configuration; TC-CORE-14 in `no_services`, `time_codes_only`, `interrupts_only`; TC-CORE-15 in `link_start`, `auto_start`, `link_disabled`) | 21 |
 | `lint/synth_check.py` (TC-CORE-16) | 19 configurations that synthesise, 7 configurations outside the ranges | 26 |
 
+QuestaSim (Questa Pro Microchip Edition 2024.3) on 2026-10-16 with Open Logic 4.7.0-ft.6, complete regression without
+code coverage (`python run.py --questa -p 1`) and with it: all 21 tests of `owr_core_tb` pass in both runs.
+
 ## 2. Summary
 
 All test cases pass; every requirement of the specification is covered (see the verification plan) and every seam

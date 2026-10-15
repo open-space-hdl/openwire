@@ -8,6 +8,9 @@ Run on 2026-10-14 with GHDL 6.0.0 (mcode), VUnit 5.0.0.dev7, UVVM 2026.03.20: `p
 | --- | --- | --- |
 | `owr_network_tb` | 15 (12 in the default configuration; TC-NI-11 in `no_services`, `time_codes_only`, `interrupts_only`) | 15 |
 
+QuestaSim (Questa Pro Microchip Edition 2024.3) on 2026-10-16 with Open Logic 4.7.0-ft.6, complete regression without
+code coverage (`python run.py --questa -p 1`) and with it: all 15 tests of `owr_network_tb` pass in both runs.
+
 ## 2. Summary
 
 All 15 test cases pass; every requirement of the specification is covered (see the verification plan). VSG reports
