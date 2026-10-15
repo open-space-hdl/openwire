@@ -33,7 +33,10 @@ Closure rules:
 ## 2. Result
 
 Run on 2026-10-14: 84 tests, all passed, 14 minutes in one simulator process; without code coverage the same 84 tests
-pass. Numbers are covered/total bins per file; bold marks a metric with misses.
+pass. Numbers are covered/total bins per file; bold marks a metric with misses. The runs used Open Logic 4.7.0-ft.2
+and apply to 4.7.0-ft.6 unchanged: between the two tags only `olo_axi_master_simple`, `olo_axi_master_full`, their
+fault-tolerant variants and the AXI test slave changed, and `olo_base_chunker` and `olo_axi_lite_decoder` were added,
+none of which OpenWire uses.
 
 | File | Statements | Branches | FSM States | FSM Transitions | Conditions | Expressions |
 | --- | --- | --- | --- | --- | --- | --- |
