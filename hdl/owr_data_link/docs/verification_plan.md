@@ -12,7 +12,8 @@ port A, and port A against a second port B for traffic. Tests observe the ports,
 | --- | --- | --- |
 | `owr_data_link_tb` | `owr_data_link_th`, `owr_data_link_tb_port` | Ports A and B (each `owr_encoding` + `owr_data_link`, FIFOs of 64), LinkClk 100 MHz, UserClk 83.3 MHz, far-end model at 10 Mb/s on the line of A (`LinkMode` = '0') or B (`LinkMode` = '1'), `Cut` freezes both directions, AXI4-Stream VVCs on the N-Char ports (TLAST = marker beat), counters of the status events |
 
-Simulator: GHDL. The run divider of the ports is 1 (100 Mb/s) unless stated.
+Simulator: GHDL and QuestaSim. The run divider of the ports is 1 (100 Mb/s) unless stated. TC-DL-44 runs in the VUnit
+configuration `fifos_min` of `hdl/owr_data_link/tb/vunit_config.py` (transmit FIFOs of 2, receive FIFOs of 16).
 
 ## 3. Test cases
 
@@ -36,6 +37,7 @@ Simulator: GHDL. The run divider of the ports is 1 (100 Mb/s) unless stated.
 | `test_link_backpressure` (TC-DL-41) | Random gaps on the transmit side and random back-pressure on the receive side, 50 packets | DL-IF-01, DL-FC-04 |
 | `test_link_restart` (TC-DL-42) | Line cut for 3 us in the middle of a packet: both ports restart, the packet arrives as a prefix with EEP, the following packets are complete | DL-TX-04, DL-RX-02, DL-RC-01 |
 | `test_user_rate` (TC-DL-43) | Bursts of 15 and 39 beats into the transmit port of A before the link starts and out of the receive port of B with the packets waiting in its receive FIFO: the burst of 39 beats takes at most 40 `UserClk` cycles on both ports (one beat per cycle) | DL-IF-01, DL-FI-01 |
+| `test_small_fifos` (TC-DL-44) | Configuration `fifos_min`: transmit FIFOs of 2 and receive FIFOs of 16 N-Chars, the minimum depths; each port sends one FCT (receive credit 8); 30 packets of 0 to 100 bytes in each direction with EOP and EEP, no credit error, no overflow, no restart | DL-FI-01, DL-FC-03, DL-FC-04 |
 | `test_ecc_tx` (TC-DL-50) | Single error injected into the transmit FIFO corrected and counted; double error: EEP sent, rest of the packet discarded, next packet complete | DL-TX-05 |
 | `test_ecc_rx` (TC-DL-51) | Single error injected into the receive FIFO corrected and counted; double error: EEP passed, rest of the packet discarded, next packet complete | DL-FI-03 |
 
@@ -47,14 +49,14 @@ Simulator: GHDL. The run divider of the ports is 1 (100 Mb/s) unless stated.
 | DL-IF-02 | TC-DL-21 |
 | DL-IF-03, DL-IF-04, DL-IF-06 | TC-DL-01 |
 | DL-IF-05 | TC-DL-01, TC-DL-02 |
-| DL-FI-01 | TC-DL-06, TC-DL-40, TC-DL-43 |
+| DL-FI-01 | TC-DL-06, TC-DL-40, TC-DL-43, TC-DL-44 |
 | DL-FI-02 | TC-DL-06 |
 | DL-FI-03 | TC-DL-51 |
 | DL-LS-01 to DL-LS-07 | TC-DL-01, TC-DL-03, TC-DL-04, TC-DL-05 |
 | DL-LS-08 | TC-DL-06 |
 | DL-FC-01 | TC-DL-01, TC-DL-11 |
 | DL-FC-02 | TC-DL-11 |
-| DL-FC-03, DL-FC-04 | TC-DL-01, TC-DL-10 |
+| DL-FC-03, DL-FC-04 | TC-DL-01, TC-DL-10, TC-DL-44 |
 | DL-FC-05 | TC-DL-12 |
 | DL-TX-01 | TC-DL-01, TC-DL-11, TC-DL-20 |
 | DL-TX-02 | TC-DL-01 |

@@ -14,8 +14,9 @@ Tests observe ports only.
 | --- | --- | --- |
 | `owr_encoding_tb` | `owr_encoding_th` | `owr_encoding` at 100 MHz (initial divider 10), far-end model instance 0 on the line, character source of the transmitter from queue 1, log of the receiver in log 1 |
 
-Simulator: GHDL. The character sequences are deterministic and mix all kinds (data, FCT, EOP, EEP, Null and broadcast
-codes).
+Simulator: GHDL and QuestaSim. The receive tests (TC-EN-10 to TC-EN-17) run with 2, 3 and 4 synchroniser stages (VUnit
+configurations `sync_2`, `sync_3` and `sync_4` of `hdl/owr_encoding/tb/vunit_config.py`). The character sequences are
+deterministic and mix all kinds (data, FCT, EOP, EEP, Null and broadcast codes).
 
 ## 3. Test cases
 

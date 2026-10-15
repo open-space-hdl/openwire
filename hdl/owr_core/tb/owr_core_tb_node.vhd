@@ -28,15 +28,19 @@ library work;
 ---------------------------------------------------------------------------------------------------
 entity owr_core_tb_node is
     generic (
-        LinkHalf_g  : time;
-        UserHalf_g  : time;
-        MgmtHalf_g  : time;
-        LinkFreq_g  : real;
-        Services_g  : boolean := true;
-        TxVvc_g     : natural;
-        RxVvc_g     : natural;
-        AxiVvc_g    : natural;
-        IndLog_g    : natural
+        LinkHalf_g     : time;
+        UserHalf_g     : time;
+        MgmtHalf_g     : time;
+        LinkFreq_g     : real;
+        TimeCodes_g    : boolean := true;
+        Interrupts_g   : boolean := true;
+        LinkDisabled_g : boolean := false;
+        LinkStart_g    : boolean := false;
+        AutoStart_g    : boolean := false;
+        TxVvc_g        : natural;
+        RxVvc_g        : natural;
+        AxiVvc_g       : natural;
+        IndLog_g       : natural
     );
     port (
         Rst      : in    std_logic;
@@ -101,9 +105,12 @@ begin
 
     i_core : entity work.owr_core
         generic map (
-            LinkClkFreq_g => LinkFreq_g,
-            TimeCodes_g   => Services_g,
-            Interrupts_g  => Services_g
+            LinkClkFreq_g  => LinkFreq_g,
+            TimeCodes_g    => TimeCodes_g,
+            Interrupts_g   => Interrupts_g,
+            LinkDisabled_g => LinkDisabled_g,
+            LinkStart_g    => LinkStart_g,
+            AutoStart_g    => AutoStart_g
         )
         port map (
             Rst               => Rst,

@@ -207,6 +207,28 @@ architecture rtl of owr_core is
 begin
 
     -----------------------------------------------------------------------------------------------
+    -- Ranges of the generics (CORE-CF-01, CORE-CF-02); the Open Logic FIFOs check the powers of 2 and the depth of at
+    -- least 2, owr_encoding the integer divider of 10 Mb/s
+    -----------------------------------------------------------------------------------------------
+    -- The receive FIFO holds the eight N-Chars of an FCT and the reserved place of an EEP (ECSS 5.5.4);
+    -- FIFO_DEPTHS and FIFO_LEVELS are 16-bit fields
+    assert RxFifoDepth_g >= 16 and RxFifoDepth_g <= 32768
+        report "owr_core: RxFifoDepth_g must be 16 to 32768"
+        severity failure;
+    assert TxFifoDepth_g <= 32768
+        report "owr_core: TxFifoDepth_g must be 2 to 32768"
+        severity failure;
+    -- The receiver samples the initial rate of the far end (at most 11 Mb/s, ECSS 5.4.10.1a) with at least
+    -- 1.2 LinkClk periods per bit
+    assert LinkClkFreq_g >= 13.2e6
+        report "owr_core: LinkClkFreq_g below 13.2 MHz cannot receive the initial data signalling rate"
+        severity failure;
+    -- LINK_SPEED.INIT_DIV is an 8-bit field
+    assert initDivider(LinkClkFreq_g) <= 255
+        report "owr_core: LinkClkFreq_g of 2555 MHz or more needs an initial divider above 255"
+        severity failure;
+
+    -----------------------------------------------------------------------------------------------
     -- MG-4 Clock and reset: the asynchronous reset brought into each domain by a TMR synchroniser
     -----------------------------------------------------------------------------------------------
     i_rst_user : entity olo.olo_base_reset_gen

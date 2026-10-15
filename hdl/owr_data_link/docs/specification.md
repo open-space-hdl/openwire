@@ -101,9 +101,9 @@ All blocks except the user sides of the FIFOs run in `LinkClk`.
 
 | Generic | Default | Range | Description |
 | --- | --- | --- | --- |
-| `ClkFreq_g` | 100.0e6 | 20 MHz to 400 MHz | Frequency of `LinkClk` in Hz (timers of 6.4 us and 12.8 us) |
-| `TxFifoDepth_g` | 64 | 16 to any power of 2 | Depth of the transmit FIFO in N-Chars |
-| `RxFifoDepth_g` | 64 | 16 to any power of 2 | Depth of the receive FIFO in N-Chars; 64 or more allows seven outstanding FCTs |
+| `ClkFreq_g` | 100.0e6 | 18 to 22 MHz, 27 to 33 MHz, 36 to 44 MHz, 45 to 2554 MHz | Frequency of `LinkClk` in Hz (timers of 6.4 us and 12.8 us); the range of the core (`owr_core` specification, CORE-CF-02) |
+| `TxFifoDepth_g` | 64 | Powers of 2, 2 to 32768 | Depth of the transmit FIFO in N-Chars (range of the core, CORE-CF-01) |
+| `RxFifoDepth_g` | 64 | Powers of 2, 16 to 32768 | Depth of the receive FIFO in N-Chars (range of the core, CORE-CF-01): room for the eight N-Chars of an FCT and the reserved place of an EEP; 64 or more allows seven outstanding FCTs |
 
 ## 5. Interpretation of the standard
 

@@ -29,7 +29,11 @@ library work;
 ---------------------------------------------------------------------------------------------------
 entity owr_core_th is
     generic (
-        ServicesB_g : boolean := true
+        TimeCodesB_g    : boolean := true;
+        InterruptsB_g   : boolean := true;
+        LinkDisabledB_g : boolean := false;
+        LinkStartB_g    : boolean := false;
+        AutoStartB_g    : boolean := false
     );
     port (
         Rst      : in    std_logic;
@@ -77,7 +81,6 @@ begin
             UserHalf_g => 6 ns,
             MgmtHalf_g => 10 ns,
             LinkFreq_g => 100.0e6,
-            Services_g => true,
             TxVvc_g    => VvcATx_c,
             RxVvc_g    => VvcARx_c,
             AxiVvc_g   => AxiA_c,
@@ -97,15 +100,19 @@ begin
 
     i_b : entity work.owr_core_tb_node
         generic map (
-            LinkHalf_g => 4 ns,
-            UserHalf_g => 8 ns,
-            MgmtHalf_g => 5 ns,
-            LinkFreq_g => 125.0e6,
-            Services_g => ServicesB_g,
-            TxVvc_g    => VvcBTx_c,
-            RxVvc_g    => VvcBRx_c,
-            AxiVvc_g   => AxiB_c,
-            IndLog_g   => IndB_c
+            LinkHalf_g     => 4 ns,
+            UserHalf_g     => 8 ns,
+            MgmtHalf_g     => 5 ns,
+            LinkFreq_g     => 125.0e6,
+            TimeCodes_g    => TimeCodesB_g,
+            Interrupts_g   => InterruptsB_g,
+            LinkDisabled_g => LinkDisabledB_g,
+            LinkStart_g    => LinkStartB_g,
+            AutoStart_g    => AutoStartB_g,
+            TxVvc_g        => VvcBTx_c,
+            RxVvc_g        => VvcBRx_c,
+            AxiVvc_g       => AxiB_c,
+            IndLog_g       => IndB_c
         )
         port map (
             Rst      => Rst,

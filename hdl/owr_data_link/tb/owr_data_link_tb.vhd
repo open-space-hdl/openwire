@@ -43,7 +43,10 @@ library work;
 ---------------------------------------------------------------------------------------------------
 entity owr_data_link_tb is
     generic (
-        runner_cfg : string
+        runner_cfg    : string;
+        -- FIFO depths of both ports
+        TxFifoDepth_g : positive := 64;
+        RxFifoDepth_g : positive := 64
     );
 end entity;
 
@@ -901,6 +904,37 @@ begin
                     to_string(T2_v / 12 ns) & " UserClk cycles");
                 check_value(T2_v <= (39 + 1) * 12 ns, error, "receive port: one beat per UserClk cycle");
 
+            elsif run("test_small_fifos") then
+                -- TC-DL-44 (configuration fifos_min: transmit FIFOs of 2 and receive FIFOs of 16 N-Chars, the
+                -- minimum depths)
+                LinkMode        <= '1';
+                CtrlA.LinkStart <= '1';
+                CtrlB.LinkStart <= '1';
+                waitState(0, StateRun_c, 60 us, "A");
+                waitState(1, StateRun_c, 60 us, "B");
+                wait for 2 us;
+                -- One FCT per port: room for 8 N-Chars and the reserved place of an EEP
+                check_value(StatA.RxCredit, 8, error, "receive credit of A: one FCT sent");
+                check_value(StatB.RxCredit, 8, error, "receive credit of B: one FCT sent");
+                check_value(StatA.TxCredit, 8, error, "transmit credit of A: one FCT of B");
+
+                for i in 0 to 29 loop
+                    axistream_transmit(AXISTREAM_VVCT, VvcATx_c, owrCountPacket((i * 37) mod 101, i, i mod 7 = 3),
+                                       "A to B " & to_string(i));
+                    axistream_expect(AXISTREAM_VVCT, VvcBRx_c, owrCountPacket((i * 37) mod 101, i, i mod 7 = 3),
+                                     "A to B " & to_string(i));
+                    axistream_transmit(AXISTREAM_VVCT, VvcBTx_c, owrCountPacket((i * 53) mod 101, i + 7),
+                                       "B to A " & to_string(i));
+                    axistream_expect(AXISTREAM_VVCT, VvcARx_c, owrCountPacket((i * 53) mod 101, i + 7),
+                                     "B to A " & to_string(i));
+                end loop;
+
+                await_completion(AXISTREAM_VVCT, VvcBRx_c, 20 ms, "A to B received");
+                await_completion(AXISTREAM_VVCT, VvcARx_c, 20 ms, "B to A received");
+                check_value(StatA.CntRun + StatB.CntRun, 2, error, "no link restart");
+                check_value(StatA.CntCredit + StatB.CntCredit + StatA.CntOverflow + StatB.CntOverflow, 0, error,
+                            "no credit error or overflow");
+
             elsif run("test_ecc_tx") then
                 -- TC-DL-50
                 LinkMode        <= '1';
@@ -971,6 +1005,10 @@ begin
     end process;
 
     i_th : entity work.owr_data_link_th
+        generic map (
+            TxFifoDepth_g => TxFifoDepth_g,
+            RxFifoDepth_g => RxFifoDepth_g
+        )
         port map (
             LinkClk  => LinkClk,
             UserClk  => UserClk,

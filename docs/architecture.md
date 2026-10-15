@@ -177,7 +177,7 @@ The FIFOs on the clock domain boundaries (dashed lines) are the only data crossi
 
 | Domain | Clocked blocks | Typical frequency |
 | --- | --- | --- |
-| `LinkClk` | Encoding layer, Data Link layer, Network layer functions, MIB register file and EDAC monitor | 50 to 200 MHz. The maximum receive data signalling rate is close to the clock frequency (section 7.4); 10 Mb/s needs a frequency within 10 % of a multiple of 10 MHz |
+| `LinkClk` | Encoding layer, Data Link layer, Network layer functions, MIB register file and EDAC monitor | 18 to 22 MHz, 27 to 33 MHz, 36 to 44 MHz or 45 to 2554 MHz (10 Mb/s with an integer divider, reception of the initial rate with 1.2 clock periods per bit, 8-bit initial divider). The maximum receive data signalling rate is close to the clock frequency (section 7.4) |
 | `UserClk` | User side of the transmit and receive FIFOs and of the broadcast FIFOs | Any |
 | `MgmtClk` | AXI4-Lite slave and the bus side of the register bridge | Any |
 

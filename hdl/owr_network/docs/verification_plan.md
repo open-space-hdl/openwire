@@ -13,7 +13,9 @@ distributed interrupts checks the disabled services. The packet service (NI-1) i
 | --- | --- | --- |
 | `owr_network_tb` | `owr_network_th`, `owr_network_tb_inst` | Instance 1 (`TimeCodes_g`, `Interrupts_g` = true), instance 2 (both false), LinkClk 100 MHz, UserClk 62.5 MHz, model of the broadcast slot, logs of codes and indications, event counters |
 
-Simulator: GHDL.
+Simulator: GHDL and QuestaSim. The VUnit configurations of `hdl/owr_network/tb/vunit_config.py` set the services of
+instance 2 for TC-NI-11: none (`no_services`), time-codes only (`time_codes_only`), interrupts only
+(`interrupts_only`).
 
 ## 3. Test cases
 
@@ -29,7 +31,7 @@ Simulator: GHDL.
 | `test_int_modes` (TC-NI-08) | Interrupt with acknowledgement mode: acknowledgement request clears the register, the code is held for the minimum delay; acknowledgement without a received interrupt sent at once; received acknowledgement indicated. Interrupt mode: no acknowledgement code, request and received acknowledgement discarded | NI-IN-02, NI-IN-05, NI-IN-06 |
 | `test_int_timers` (TC-NI-09) | Minimum interval of 5 ticks of 10 cycles and of 5 ticks of one cycle (tick setting 0) measured between two interrupt codes; minimum acknowledgement delay of 100 ticks for each of the 32 identifiers, acknowledgements requested before the delay ends | NI-IN-07 |
 | `test_int_port_reset` (TC-NI-10) | Port reset clears the interrupt register, the waiting codes and the timers | NI-IN-08 |
-| `test_disabled_services` (TC-NI-11) | Instance 2: received codes ignored, requests discarded | NI-TC-01, NI-IN-01 |
+| `test_disabled_services` (TC-NI-11) | Instance 2 in the configurations `no_services`, `time_codes_only` and `interrupts_only`: received codes of the enabled services indicated, of the disabled services ignored; requests of the enabled services sent, of the disabled services discarded | NI-TC-01, NI-IN-01 |
 | `test_ind_overflow` (TC-NI-12) | Indication FIFO full: indications lost and reported, the stored ones delivered in order | NI-IF-02 |
 | `test_ecc` (TC-NI-13) | Single errors in the request and indication FIFOs corrected, double errors discarded, events counted | NI-BC-03 |
 
