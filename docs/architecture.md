@@ -42,7 +42,7 @@ ECSS 5.3.6.1b); the I/O buffers are instantiated by the design that integrates t
 
 OpenWire is an open SpaceWire implementation that is based on the Open Logic VHDL Library. The code lives in
 [open-space-hdl/openwire](https://github.com/open-space-hdl/openwire) under the PSI HDL Library License, Version 1.0,
-the licence of Open Logic. Open Logic is pinned to the tag `4.7.0-ft.2` (425d69d) of the branch `fault-tolerant`
+the licence of Open Logic. Open Logic is pinned to the tag `4.7.0-ft.6` (5d8ae56) of the branch `fault-tolerant`
 of open-space-hdl/open-logic-ft, the fault-tolerant fork of Open Logic.
 
 ### References
@@ -50,7 +50,7 @@ of open-space-hdl/open-logic-ft, the fault-tolerant fork of Open Logic.
 | ID | Document | Version used |
 | --- | --- | --- |
 | \[ECSS\] | ECSS-E-ST-50-12C Rev.1, SpaceWire: Links, nodes, routers and networks | 15 May 2019 |
-| \[OLO\] | [Open Logic, fault-tolerant fork, branch fault-tolerant](https://github.com/open-space-hdl/open-logic-ft/tree/fault-tolerant) | 4.7.0-ft.2 (425d69d) |
+| \[OLO\] | [Open Logic, fault-tolerant fork, branch fault-tolerant](https://github.com/open-space-hdl/open-logic-ft/tree/fault-tolerant) | 4.7.0-ft.6 (5d8ae56) |
 
 ### Conventions
 
