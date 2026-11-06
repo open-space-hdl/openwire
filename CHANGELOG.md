@@ -10,6 +10,8 @@ feature and a patch version for a fix.
 
 - Verification: the test end compares the alert counters of every level itself and ends the simulation with a
   failure, whatever the stop limits of the test.
+- Documentation website: builds with Python-Markdown 3.11.3 (heading anchors hook takes the new optional argument;
+  markdown pinned).
 
 ## [0.1.0] - 2026-10-18
 
