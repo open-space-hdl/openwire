@@ -8,9 +8,10 @@ Run on 2026-10-14 with GHDL 6.0.0 (mcode), VUnit 5.0.0.dev7, UVVM 2026.03.20: `p
 | --- | --- | --- |
 | `owr_data_link_tb` | 21 (20 in the default configuration, TC-DL-44 in `fifos_min`) | 21 |
 
-QuestaSim (Questa Pro Microchip Edition 2024.3) on 2026-10-16 with Open Logic 4.7.0-ft.6, complete regression without
-code coverage (`python run.py --questa -p 1`) and with it: all 21 tests of `owr_data_link_tb` pass in both runs.
-TC-DL-43 measures the same cycle counts as in GHDL.
+QuestaSim (Questa Pro Microchip Edition 2024.3), complete regression without code coverage
+(`python run.py --questa -p 1`) on 2026-11-18 with Open Logic 4.8.0-ft.2 (release 0.1.1): all 21 tests of
+`owr_data_link_tb` pass. On 2026-10-16 with Open Logic 4.7.0-ft.6 and the same RTL they passed without code coverage and
+with it. TC-DL-43 measures the same cycle counts as in GHDL.
 
 ## 2. Summary
 
