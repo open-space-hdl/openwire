@@ -24,7 +24,7 @@ statement, branch and state machine coverage closed, see [docs/coverage.md](docs
 [compliance matrix](docs/compliance.md) traces every ECSS clause in scope to its requirements and test cases. Two cores
 exchange packets at 97 % of the data character rate in both directions, recover from line cuts and receive errors,
 and interoperate with an independent Data-Strobe model of the far end. Synthesis results on a target device and a
-hardware test are open; see [docs/roadmap.md](docs/roadmap.md).
+hardware test as part of a reference system of the family are open; see [docs/roadmap.md](docs/roadmap.md).
 
 ## Documentation
 

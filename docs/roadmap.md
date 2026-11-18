@@ -10,7 +10,7 @@ The core is at **TRL 3**: fully verified by simulation, not yet tested on hardwa
 
 | Next level | What is needed | State |
 | --- | --- | --- |
-| TRL 4 | Synthesis and timing closure on a target FPGA; hardware test in the laboratory, two ports in loopback and against independent SpaceWire equipment at all data signalling rates; hardware test plan and test report | Open (see the open items) |
+| TRL 4 | Synthesis and timing closure on a target FPGA; hardware test in the laboratory as part of a reference system of the family, two ports in loopback and against independent SpaceWire equipment at all data signalling rates; hardware test plan and test report | Open (see the open items) |
 | TRL 5 | Single-event effects test (beam test) on a radiation-tolerant FPGA with the core in operation that confirms the single-event mitigation and quantifies the error rates; operation over the temperature range | Open |
 
 ## Modules
@@ -30,5 +30,5 @@ The core is at **TRL 3**: fully verified by simulation, not yet tested on hardwa
 | Item | State |
 | --- | --- |
 | Synthesis on a target device: resources and timing closure of `LinkClk` | Open; `tools/synth_vivado.py` runs the out-of-context flow with AMD Vivado |
-| Hardware test against SpaceWire equipment (LVDS I/O buffers of the target, cable) | Open |
+| Hardware test as part of a reference system of the family, against SpaceWire equipment (LVDS I/O buffers of the target, cable) | Open |
 | Code coverage with QuestaSim | Done: [coverage.md](coverage.md) |
