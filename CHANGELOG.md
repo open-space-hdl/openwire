@@ -8,6 +8,11 @@ feature and a patch version for a fix.
 
 ### Changed
 
+- Open Logic 4.8.0-ft.2 (1f4a6c3), the fault-tolerant fork based on Open Logic 4.8.0 (from 4.7.0-ft.6). The Open
+  Logic VHDL sources that OpenWire uses are identical in both tags, so no port, generic or behaviour of OpenWire
+  changes. Of the files of these entities only the scoped AMD Vivado constraint of `olo_base_ram_sdp` changes: it also
+  finds the first read register of a LUTRAM (asynchronous FIFOs) after retiming and reports a critical warning when it
+  finds none.
 - Verification: the test end compares the alert counters of every level itself and ends the simulation with a
   failure, whatever the stop limits of the test.
 - Documentation website: builds with Python-Markdown 3.11.3 (heading anchors hook takes the new optional argument;
