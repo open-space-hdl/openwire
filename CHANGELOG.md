@@ -7,7 +7,9 @@ feature and a patch version for a fix.
 ## [0.1.1] - 2026-11-18
 
 Patch release on Open Logic 4.8.0-ft.2 (1f4a6c3), based on Open Logic 4.8.0. No port, generic, stream format or
-register of OpenWire changes, and the RTL is that of 0.1.0.
+register of OpenWire changes, and the RTL is that of 0.1.0. Verified by simulation (TRL 3) on Open Logic 4.8.0-ft.2:
+111 of 111 tests in GHDL and in QuestaSim without code coverage; the code coverage of 0.1.0 (`docs/coverage.md`)
+applies unchanged.
 
 ### Changed
 
