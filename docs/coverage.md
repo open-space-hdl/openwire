@@ -33,7 +33,9 @@ Closure rules:
 ## 2. Result
 
 Run on 2026-10-16 with Open Logic 4.7.0-ft.6: 111 tests, all passed, 19 minutes in one simulator process; without code
-coverage the same 111 tests pass (20 minutes). Numbers are covered/total bins per file; bold marks a metric with misses.
+coverage the same 111 tests pass (20 minutes). These results are also the code coverage of release 0.1.1: its RTL is
+that of 0.1.0, and its regression without code coverage passed on 2026-11-18 with Open Logic 4.8.0-ft.2 (111 of 111
+tests, 21 minutes). Numbers are covered/total bins per file; bold marks a metric with misses.
 
 | File | Statements | Branches | FSM States | FSM Transitions | Conditions | Expressions |
 | --- | --- | --- | --- | --- | --- | --- |
